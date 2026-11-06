@@ -23,33 +23,33 @@ function peekCustomer() {
 }
 
 function updateDisplay() {
-  const waitingLine = document.getElementById("waiting-line");
-  waitingLine.textContent = "";
+  $("#waiting-line").empty();
 
   for (const customer of queue) {
-    const card = document.createElement("li");
-    card.className = "student-card";
-    card.textContent = "Student #" + customer.number;
-    waitingLine.appendChild(card);
+    const card = $("<li>");
+    card.addClass("student-card list-group-item");
+    card.text("Student #" + customer.number);
+    $("#waiting-line").append(card);
   }
 
-  document.getElementById("waiting-count").textContent = queue.length;
+  $("#waiting-count").text(queue.length);
 
   const nextCustomer = peekCustomer();
 
   if (nextCustomer === null) {
-    document.getElementById("next-student").textContent = "None";
+    $("#next-student").text("None");
   } else {
-    document.getElementById("next-student").textContent =
-      "#" + nextCustomer.number;
+    $("#next-student").text("#" + nextCustomer.number);
   }
 
-  document.getElementById("served-count").textContent = servedCount;
+  $("#served-count").text(servedCount);
 }
 
-document.getElementById("add-student").addEventListener("click", function () {
-  enqueueCustomer();
+$(function () {
+  $("#add-student").on("click", function () {
+    enqueueCustomer();
+    updateDisplay();
+  });
+
   updateDisplay();
 });
-
-updateDisplay();
