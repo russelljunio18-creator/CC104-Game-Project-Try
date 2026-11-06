@@ -5,12 +5,18 @@ let lastServedCustomer = null;
 const SERVED_TARGET = 10;
 
 // Cosmetic profiles repeat; the unique queue number still identifies each student.
+const STUDENT_NAMES = ["Bisaya", "Baron", "Busseng", "Insan", "Neneng B"];
 const STUDENT_MOODS = [
   "May saging kayo?",
   "Nasaan ang sabaw?!",
   "Walang kanen busseng??",
-  "Awake in spirit. Hungry in person."
+  "Mekus mekus mo na 'yan insan",
+  "'Ma ano ulam?"
 ];
+
+function customerLabel(customer) {
+  return STUDENT_NAMES[(customer.number - 1) % STUDENT_NAMES.length] + " #" + customer.number;
+}
 
 function portraitClass(customer) {
   return "student-portrait portrait-" + ((customer.number - 1) % STUDENT_MOODS.length);
@@ -63,6 +69,8 @@ function updateDisplay() {
     card.addClass("student-card list-group-item");
     const portrait = $("<span>").addClass(portraitClass(customer)).attr("aria-hidden", "true");
     const details = $("<div>").addClass("student-details");
+    $("<span>").addClass("student-name")
+      .text(STUDENT_NAMES[(customer.number - 1) % STUDENT_NAMES.length]).appendTo(details);
     $("<span>").addClass("student-number").text("Student #" + customer.number).appendTo(details);
     $("<span>").addClass("student-mood")
       .text(STUDENT_MOODS[(customer.number - 1) % STUDENT_MOODS.length]).appendTo(details);
@@ -78,12 +86,12 @@ function updateDisplay() {
   if (nextCustomer === null) {
     $("#next-student").text("None");
   } else {
-    $("#next-student").text("#" + nextCustomer.number);
+    $("#next-student").text(customerLabel(nextCustomer));
   }
 
   $("#served-count").text(servedCount);
   $("#last-served").text(lastServedCustomer === null
-    ? "None" : "#" + lastServedCustomer.number);
+    ? "None" : customerLabel(lastServedCustomer));
 
   $("#served-portrait").prop("hidden", lastServedCustomer === null);
   if (lastServedCustomer !== null) {
@@ -102,7 +110,7 @@ $(function () {
   $("#add-student").on("click", function () {
     const customer = enqueueCustomer();
     if (customer !== null) {
-      $("#feedback-message").text("Student #" + customer.number + " joined the back of the line.");
+      $("#feedback-message").text(customerLabel(customer) + " joined the back of the line.");
     }
     updateDisplay();
   });
@@ -118,7 +126,7 @@ $(function () {
       lastServedCustomer = customer;
       $("#feedback-message").text(servedCount >= SERVED_TARGET
         ? "Success! You served 10 students. Lunch rush complete! Select Reset to play again."
-        : "Served student #" + customer.number + ". Enjoy your lunch!");
+        : "Served " + customerLabel(customer) + ". Enjoy your lunch!");
     }
     updateDisplay();
   });

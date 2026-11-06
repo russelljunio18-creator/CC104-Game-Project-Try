@@ -32,3 +32,6 @@ The full offline gameplay checks were repeated after the artwork update at 1280p
 
 ## Member meme update
 The full offline suite passed at both widths after replacing profiles 1-3. Checks also verify all three supplied photos load, each profile uses its expected file, exact dialogue is rendered, and serving student 1 carries the matching line to the counter. The narrow-screen meme lineup was visually inspected.
+
+## Five named profiles
+Offline checks passed at 1280px and 375px after adding Insan and Neneng B. Verified all five names and exact dialogues, both new local images, named peek and Last served, Neneng B at customer 5, and Bisaya again at customer 6. FIFO, completion, and reset checks remain passing.
