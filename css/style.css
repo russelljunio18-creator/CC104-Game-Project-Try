@@ -187,7 +187,7 @@ button:disabled {
 }
 
 /* User-supplied meme photos are displayed whole; original files are unedited. */
-.portrait-0, .portrait-1, .portrait-2 {
+.portrait-0, .portrait-1, .portrait-2, .portrait-3, .portrait-4 {
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
@@ -200,3 +200,8 @@ button:disabled {
 @media (max-width: 575px) {
   .student-portrait { width: 76px; height: 76px; flex-basis: 76px; }
 }
+
+.portrait-3 { background-image: url('../assets/member-4-meme.png'); }
+.portrait-4 { background-image: url('../assets/member-5-meme.png'); }
+.student-name { display: block; color: #142d4e; font-size: 1.05rem; font-weight: 700; }
+.student-number { font-size: .75rem; color: #4e6157; font-weight: 400; }
