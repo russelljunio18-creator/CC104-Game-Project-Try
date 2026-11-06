@@ -14,6 +14,17 @@ function enqueueCustomer() {
   return customer;
 }
 
+function dequeueCustomer() {
+  if (queue.length === 0 || servedCount >= 10) {
+    return null;
+  }
+
+  const customer = queue.shift();
+  servedCount++;
+
+  return customer;
+}
+
 function peekCustomer() {
   if (queue.length === 0) {
     return null;
