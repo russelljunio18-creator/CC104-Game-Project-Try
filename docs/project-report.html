@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Campus Canteen — Project Report</title>
+<style>
+*{box-sizing:border-box}body{font:11pt/1.45 Arial,sans-serif;color:#243247;margin:0;background:#eef3f0}
+.page{background:white;width:190mm;min-height:265mm;margin:12mm auto;padding:12mm}
+h1,h2,h3{color:#142d4e}h1{font-size:25pt}h2{font-size:17pt}h3{font-size:12pt}
+table{border-collapse:collapse;width:100%;font-size:10pt}td,th{border:1px solid #ccd7cf;padding:6px;text-align:left;vertical-align:top}
+code{font-size:10pt}img{display:block;max-width:100%;max-height:200mm;margin:auto}li{margin-bottom:5px}
+.note{background:#e7f2e9;padding:12px;border-left:4px solid #176b3a}.small{font-size:9pt}
+@page{size:A4;margin:10mm}@media print{body{background:white}.page{width:auto;min-height:0;margin:0;padding:0;break-after:page}.page:last-child{break-after:auto}h2,h3{break-after:avoid}tr,img{break-inside:avoid}}
+</style></head><body>
+<section class="page"><h1>Campus Canteen:<br>Lunch Line</h1><p>CC104 — Data Structures and Algorithms<br>Course Term Project</p>
+<p><strong>Team:</strong> Jared, Eric, Fred, Russ</p>
+<h2>Objective and launch</h2><p>Serve 10 students in arrival order using a first-in, first-out queue. The interface uses a light background, navy headings, green controls, numbered student cards, and one standard lunch meal.</p>
+<p>Extract the complete repository, then open <code>index.html</code>. Keep its css and js folders in place. No server or internet is required. Refresh starts a new game.</p>
+<h2>Gameplay</h2><ol><li>Add Student appends a uniquely numbered customer to the back.</li><li>Next Student displays the front customer without removing them.</li><li>Serve Student removes the front customer and updates Last served and both counters.</li><li>Serving an empty queue displays feedback without changing data.</li><li>After 10 successful serves, success appears and Add/Serve stop. Remaining students stay visible.</li><li>Reset clears the queue, last customer, counts, and messages, and restarts numbering at 1.</li></ol>
+<h2>Technology</h2><p>HTML provides structure; local Bootstrap supplies responsive utilities and component styles; custom CSS supplies the school theme. JavaScript implements queue operations. Local jQuery handles clicks and interface updates. GitHub preserves shared source and reviews.</p>
+<p class="note">Bootstrap and jQuery are bundled with their licenses. The game makes no HTTP requests during the automated offline checks.</p>
+<p class="small">Administrative details to confirm before submission: full names if required, section, group number, and exact deadline.</p></section>
+<section class="page"><h2>Data structures and algorithms</h2>
+<p>The queue is an array of objects such as <code>{ number: 1 }</code>. Index 0 is the front. Student numbers are identifiers, not positions.</p>
+<table><tr><th>Stored state</th><th>Purpose</th></tr><tr><td>queue</td><td>Waiting customers, ordered by arrival</td></tr><tr><td>nextQueueNumber</td><td>Next unused student number</td></tr><tr><td>servedCount</td><td>Successful serves</td></tr><tr><td>lastServedCustomer</td><td>Most recent successful serve, or null</td></tr><tr><td>SERVED_TARGET</td><td>Constant target of 10</td></tr></table>
+<h3>Key functions in js/game.js</h3><table><tr><th>Function</th><th>Steps</th></tr>
+<tr><td>enqueueCustomer()</td><td>Reject completion; create customer; push at rear; increment numbering; return customer. Rejection returns null.</td></tr>
+<tr><td>dequeueCustomer()</td><td>Reject empty/completed state; shift front; increment served; return customer. Rejection returns null.</td></tr>
+<tr><td>peekCustomer()</td><td>Read queue[0], or return null. No mutation.</td></tr>
+<tr><td>resetGame()</td><td>Reset stored state. Its click handler clears feedback and redraws.</td></tr>
+<tr><td>updateDisplay()</td><td>Traverse and render queue; update next, waiting, served, Last served, and enabled controls.</td></tr></table>
+<p>The Serve handler updates Last served from the returned customer only on success. Queue operations guard completion even when called directly.</p>
+<h3>Worked example</h3><p>Add #1, #2, #3. Peek reports #1 without changing the line. Serve returns #1 and leaves #2, #3. Add #4: the queue is #2, #3, #4, waiting is 3, and served is 1/10.</p>
+<h3>Complexity</h3><p>Array enqueue is typically amortized O(1); peek is O(1); shift-based dequeue is O(n). Rendering traverses n waiting customers in O(n), with O(n) queue storage.</p></section>
+<section class="page"><h2>Gameplay screenshot</h2><p>After serving #1 and adding another student, arrival order and Last served remain consistent.</p><img src="screenshots/playing-1280.png" alt="Actual game showing students 2 through 5 waiting and student 1 last served"></section>
+<section class="page"><h2>Completion screenshot</h2><p>Ten served, two still waiting: Add and Serve are disabled until Reset.</p><img src="screenshots/success.png" alt="Actual game at 10 served with success feedback"></section>
+<section class="page"><h2>Verification and development</h2><p>Automated browser checks passed at 1280px and 375px using offline file launch: arrival order, repeated peek, empty-queue handling, FIFO serving, counts, completion guards, Reset, and refresh. No HTTP requests, console errors, or horizontal page overflow were observed. See <code>test-results.md</code> for the full record.</p>
+<h3>Development problem and solution</h3><p>The course calls for library integration and offline launch. Bootstrap and jQuery are stored locally and loaded before dependent custom code. Offline checks verify the game does not rely on an internet connection.</p>
+<h3>Contributions and AI assistance</h3><p>Reported contributions: Jared — HTML and Add integration; Eric — styling and local libraries; Fred — initialization and enqueue; Russ — dequeue. AI assistance completed final Serve/Reset integration, feedback, checks, and documentation. Human review of these final additions is still required; this report does not claim it occurred.</p>
+<h3>Demonstration plan</h3><ul><li>Jared: objective, HTML areas, and Add event handler.</li><li>Eric: custom CSS, Bootstrap, responsive and offline behavior.</li><li>Fred: array objects, enqueue, numbering, and peek.</li><li>Russ: dequeue, returned customer, completion, and Reset.</li></ul>
+<p>Use the accompanying demo guide for a 10–15 minute rehearsal. Everyone should explain FIFO, return values, invalid-action guards, and their own code.</p>
+<h3>Remaining submission actions</h3><p>The team must review the final changes, record and upload its group demonstration, confirm identifying details and deadline, and submit the printed report and MS Teams materials. These actions are not marked complete.</p></section>
+</body></html>

@@ -129,3 +129,24 @@ main > section {
     grid-column: 1 / -1;
   }
 }
+/* Long queues stay readable without moving the controls far down the page. */
+#waiting-line {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.student-card {
+  margin-bottom: 8px;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+#feedback-message.game-complete {
+  background-color: #e7f2e9;
+  color: #10512b;
+  font-weight: bold;
+}
