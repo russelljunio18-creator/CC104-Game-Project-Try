@@ -1,61 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Campus Canteen: Lunch Line</title>
-  <link rel="stylesheet" href="css/style.css">
-  <script src="js/game.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Canteen: Lunch Line</title>
+    <link rel="stylesheet" href="css/vendor/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/vendor/jquery-3.6.3.js" defer></script>
+    <script src="js/game.js" defer></script>
 </head>
 <body>
-  <header>
-    <h1>Campus Canteen: Lunch Line</h1>
-    <p>
-      Add students at the back of the line and serve them from the front.
-      First in, first out (FIFO). Serve 10 students to complete the lunch rush!
-    </p>
-  </header>
+    <header>
+        <h1>Campus Canteen: Lunch Line</h1>
+        <p>
+        Add students at the back of the line and serve them from the front.
+        First in, first out (FIFO). Serve 10 students to complete the lunch rush!
+        </p>
+    </header>
 
-  <main>
-    <section aria-labelledby="waiting-line-heading">
-        <h2 id="waiting-line-heading">Waiting Line</h2>
+    <main>
+        <section aria-labelledby="waiting-line-heading">
+            <h2 id="waiting-line-heading">Waiting Line</h2>
 
-        <p><strong>Front</strong> — students are served here.</p>
+            <p><strong>Front</strong> — students are served here.</p>
 
-        <ol id="waiting-line"></ol>
+            <ol id="waiting-line"></ol>
 
-        <p><strong>Back</strong> — new students join here.</p>
-    </section>
-    <section aria-labelledby="service-counter-heading">
-        <h2 id="service-counter-heading">Service Counter</h2>
-        <p>Standard lunch meal</p>
-        <p>Last served: <span id="last-served">None</span></p>
-    </section>
+            <p><strong>Back</strong> — new students join here.</p>
+        </section>
+        <section aria-labelledby="service-counter-heading">
+            <h2 id="service-counter-heading">Service Counter</h2>
+            <p>Standard lunch meal</p>
+            <p>Last served: <span id="last-served">None</span></p>
+        </section>
 
-    <section aria-labelledby="next-student-heading">
-        <h2 id="next-student-heading">Next Student (Peek)</h2>
-        <p>Next student: <span id="next-student">None</span></p>
-        <p>Peek shows who is at the front without removing them.</p>
-    </section>
+        <section aria-labelledby="next-student-heading">
+            <h2 id="next-student-heading">Next Student (Peek)</h2>
+            <p>Next student: <span id="next-student">None</span></p>
+            <p>Peek shows who is at the front without removing them.</p>
+        </section>
 
-    <section aria-labelledby="progress-heading">
-        <h2 id="progress-heading">Lunch Rush Progress</h2>
-        <p>Waiting: <span id="waiting-count">0</span></p>
-        <p>Served: <span id="served-count">0</span>/10</p>
-    </section>
+        <section aria-labelledby="progress-heading">
+            <h2 id="progress-heading">Lunch Rush Progress</h2>
+            <p>Waiting: <span id="waiting-count">0</span></p>
+            <p>Served: <span id="served-count">0</span>/10</p>
+        </section>
 
-    <section aria-labelledby="controls-heading">
-        <h2 id="controls-heading">Game Controls</h2>
-        <button type="button" id="add-student">Add Student</button>
-        <button type="button" id="serve-student">Serve Student</button>
-        <button type="button" id="reset-game">Reset</button>
-    </section>
+        <section aria-labelledby="controls-heading">
+            <h2 id="controls-heading">Game Controls</h2>
 
-    <section aria-labelledby="feedback-heading">
-        <h2 id="feedback-heading">Feedback</h2>
-        <p id="feedback-message" role="status"></p>
-    </section>
+            <div class="d-flex flex-column flex-sm-row flex-wrap gap-2">
+                <button type="button" id="add-student" class="btn btn-success">
+                Add Student
+                </button>
 
-  </main>
-</body>
+                <button type="button" id="serve-student" class="btn btn-success">
+                Serve Student
+                </button>
+
+                <button type="button" id="reset-game" class="btn btn-outline-success">
+                Reset
+                </button>
+            </div>
+        </section>
+
+        <section aria-labelledby="feedback-heading">
+            <h2 id="feedback-heading">Feedback</h2>
+            <p id="feedback-message" role="status"></p>
+        </section>
+
+        </main>
+    </body>
 </html>
