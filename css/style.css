@@ -185,3 +185,18 @@ button:disabled {
   .student-card { gap: 10px; padding: 10px; }
   .student-portrait { width: 54px; height: 54px; flex-basis: 54px; }
 }
+
+/* User-supplied meme photos are displayed whole; original files are unedited. */
+.portrait-0, .portrait-1, .portrait-2 {
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.portrait-0 { background-image: url('../assets/member-1-meme.jpg'); }
+.portrait-1 { background-image: url('../assets/member-2-meme.jpg'); }
+.portrait-2 { background-image: url('../assets/member-3-meme.png'); }
+.student-portrait { width: 96px; height: 96px; flex-basis: 96px; border-radius: 8px; }
+.student-mood { font-size: .95rem; }
+@media (max-width: 575px) {
+  .student-portrait { width: 76px; height: 76px; flex-basis: 76px; }
+}

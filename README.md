@@ -91,6 +91,6 @@ The working game and supporting files are prepared. The team still needs to rehe
 
 ## Cartoon assets and lunch-break humor
 
-Four illustrated student portraits and a cheerful rice-graduate mascot add personality while keeping the original navy/green school theme. Portraits cycle by student number and follow the student into Last served; they do not affect queue priority or the one-meal rule. Local files, exact built-in image-generation prompts, and usage notes are documented in `assets/README.md`.
+Three user-supplied meme portraits, one retained cartoon portrait, and a cheerful rice-graduate mascot add personality while keeping the original navy/green school theme. Portraits cycle by student number and follow the student into Last served; they do not affect queue priority or the one-meal rule. Local files, exact built-in image-generation prompts, and usage notes are documented in `assets/README.md`.
 
-`portraitClass(customer)` selects one quadrant of the student atlas. `STUDENT_MOODS` supplies four cosmetic captions. `updateDisplay()` renders these alongside the original student numbers and restores the empty scene after Reset. The queue functions and success target are unchanged.
+`portraitClass(customer)` selects a member profile: three local meme photos or the fourth quadrant of the original cartoon atlas. `STUDENT_MOODS` supplies four cosmetic captions. `updateDisplay()` renders these alongside the original student numbers and restores the empty scene after Reset. The queue functions and success target are unchanged.

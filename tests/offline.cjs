@@ -53,6 +53,21 @@ fs.mkdirSync(output, { recursive: true });
       assert.deepEqual(await page.locator('#waiting-line .student-number').allTextContents(),
         ['Student #1', 'Student #2', 'Student #3', 'Student #4']);
       assert.equal(await text('next-student'), '#1');
+      assert.deepEqual(await page.locator('#waiting-line .student-mood').allTextContents(),
+        ['May saging kayo?', 'Nasaan ang sabaw?!', 'Walang kanen busseng??', 'Awake in spirit. Hungry in person.']);
+      assert.deepEqual(await page.evaluate(async () => Promise.all(
+        ['member-1-meme.jpg', 'member-2-meme.jpg', 'member-3-meme.png'].map(file =>
+          new Promise(resolve => {
+            const image = new Image(); image.onload = () => resolve(image.naturalWidth > 0);
+            image.onerror = () => resolve(false); image.src = 'assets/' + file;
+          }))
+      )), [true, true, true]);
+      for (let i = 0; i < 3; i++) {
+        const background = await page.locator('#waiting-line .student-portrait').nth(i)
+          .evaluate(element => getComputedStyle(element).backgroundImage);
+        assert.ok(background.includes('member-' + (i + 1) + '-meme.'));
+      }
+      await page.screenshot({ path: path.join(output, `meme-line-${width}.png`), fullPage: true });
       assert.equal(await page.locator('#waiting-empty').isVisible(), false);
       assert.equal(await page.locator('#waiting-line .student-portrait').count(), 4);
       assert.equal(await text('waiting-count'), '4');
@@ -64,6 +79,7 @@ fs.mkdirSync(output, { recursive: true });
       }), [1, 1, true]);
       await click('serve-student');
       assert.equal(await text('last-served'), '#1');
+      assert.equal(await text('served-joke'), 'May saging kayo?');
       assert.equal(await page.locator('#served-portrait').isVisible(), true);
       assert.match(await page.locator('#served-portrait').getAttribute('class'), /portrait-0/);
       assert.equal(await text('next-student'), '#2');
