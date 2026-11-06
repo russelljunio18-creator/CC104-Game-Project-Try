@@ -49,7 +49,11 @@
 
         <section aria-labelledby="next-student-heading">
             <h2 id="next-student-heading">Next Student (Peek)</h2>
-            <p>Next student: <span id="next-student">None</span></p>
+            <div class="peek-preview">
+                <span id="peek-portrait" class="student-portrait" aria-hidden="true" hidden></span>
+                <p class="peek-name">Next student: <strong id="next-student">None</strong></p>
+                <p id="peek-dialogue" class="peek-dialogue" hidden></p>
+            </div>
             <p>Peek shows who is at the front without removing them.</p>
         </section>
 

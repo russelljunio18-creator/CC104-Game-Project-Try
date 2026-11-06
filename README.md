@@ -17,7 +17,7 @@ Bootstrap CSS and jQuery are included locally with license files in their vendor
 ## How to play
 
 1. Select **Add Student** to append the next numbered student to the back.
-2. Read **Next Student (Peek)** to see who will be served without removing them.
+2. Read **Next Student (Peek)** to see a large picture, name, queue number, and dialogue for the front student without removing them. The preview clears when the queue is empty or the game is reset.
 3. Select **Serve Student** to remove the front student and update **Last served**.
 4. Continue until **Served: 10/10**. Add and Serve are then disabled. Any remaining waiting students stay visible until reset.
 5. Select **Reset** to clear the queue, counters, last-served display, and feedback, and restart numbering at 1.
