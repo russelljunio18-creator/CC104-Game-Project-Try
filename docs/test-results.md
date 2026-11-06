@@ -24,3 +24,8 @@ The assistant visually inspected the narrow gameplay and wide success screenshot
 ## Human review status
 
 Earlier HTML, styling, enqueue, and dequeue reviews were reported by the user in the project chats. The final AI-assisted Serve/Reset integration and documentation have automated verification, but no new human approval has been claimed. Each member should read the final diff and rehearse the demo guide. The group recording, instructor deadline confirmation, and submission remain outstanding.
+
+
+## Asset integration verification
+
+The full offline gameplay checks were repeated after the artwork update at 1280px and 375px: all passed. Both local PNG assets load without network access. Four cards retain #1–#4 arrival order with four portrait elements; empty-state humor hides while the queue is populated; serving #1 displays portrait 0 at the counter. The assistant visually inspected wide and narrow screenshots. Images and captions do not change FIFO, numbering, completion, or reset logic.

@@ -10,12 +10,17 @@
     <script src="js/game.js" defer></script>
 </head>
 <body>
-    <header>
+    <header class="canteen-header">
+        <div>
+        <p class="school-label">CAMPUS CANTEEN / LUNCH BREAK</p>
         <h1>Campus Canteen: Lunch Line</h1>
         <p>
         Add students at the back of the line and serve them from the front.
         First in, first out (FIFO). Serve 10 students to complete the lunch rush!
         </p>
+        <p class="canteen-tagline">Big appetites. Small break time. Absolutely no cutting.</p>
+        </div>
+        <img class="header-mascot" src="assets/lunch-mascot.png" alt="Grinning rice mascot wearing a graduation cap on a lunch tray" width="160" height="160">
     </header>
 
     <main>
@@ -24,14 +29,22 @@
 
             <p><strong>Front</strong> — students are served here.</p>
 
-            <ol id="waiting-line"></ol>
+            <ol id="waiting-line" aria-label="Students in arrival order"></ol>
+            <p id="waiting-empty" class="canteen-aside">Suspiciously quiet. Everyone must still be copying the homework.</p>
 
             <p><strong>Back</strong> — new students join here.</p>
         </section>
         <section aria-labelledby="service-counter-heading">
             <h2 id="service-counter-heading">Service Counter</h2>
-            <p>Standard lunch meal</p>
-            <p>Last served: <span id="last-served">None</span></p>
+            <div class="counter-scene">
+                <img class="meal-mascot" src="assets/lunch-mascot.png" alt="" width="112" height="112">
+                <div><span class="menu-label">TODAY'S SPECIAL</span>
+                <p class="meal-name">Standard lunch meal</p>
+                <p class="canteen-aside">Rice, chicken, veggies. Extra motivation sold separately.</p></div>
+            </div>
+            <div class="last-served-row"><span id="served-portrait" class="student-portrait" aria-hidden="true" hidden></span>
+            <div><p>Last served: <span id="last-served">None</span></p>
+            <p id="served-joke" class="canteen-aside">The tray is ready. The students? Debatable.</p></div></div>
         </section>
 
         <section aria-labelledby="next-student-heading">
