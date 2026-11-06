@@ -79,6 +79,13 @@
                 Reset
                 </button>
             </div>
+            <div class="character-sound-panel">
+                <label class="sound-toggle" for="sound-enabled">
+                    <input type="checkbox" id="sound-enabled" checked> Play character sounds on Add
+                </label>
+                <audio id="character-audio" controls preload="none" aria-label="Character music player"></audio>
+                <p id="sound-status" class="canteen-aside" role="status">Add a student to hear their clip.</p>
+            </div>
         </section>
 
         <section aria-labelledby="feedback-heading">

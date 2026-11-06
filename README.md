@@ -94,3 +94,10 @@ The working game and supporting files are prepared. The team still needs to rehe
 Five named user-supplied meme portraits, and a cheerful rice-graduate mascot add personality while keeping the original navy/green school theme. Portraits cycle by student number and follow the student into Last served; they do not affect queue priority or the one-meal rule. Local files, exact built-in image-generation prompts, and usage notes are documented in `assets/README.md`.
 
 `portraitClass(customer)` selects a member profile: one of five local meme photos. `STUDENT_NAMES` and `STUDENT_MOODS` supply five cosmetic character names and captions. `updateDisplay()` renders these alongside the original student numbers and restores the empty scene after Reset. The queue functions and success target are unchanged.
+
+
+## Character sounds
+
+The five characters are Reden (🥴), Baron, Busseng, Insan, and Neneng B. A successful Add Student click plays that character's user-supplied local MP3. One player replaces the previous clip when another student joins, so clips never overlap. Reset stops sound. Uncheck **Play character sounds on Add** for quiet play; the preference lasts until refresh. The audio controls provide pause, seeking, and volume. No sound starts on page load, peek, or Serve. Audio playback failures do not block gameplay.
+
+The confirmed original filenames and character mappings are in `assets/README.md`. The sound files and Reden portrait are user-supplied and copied unchanged.
