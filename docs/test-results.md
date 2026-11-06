@@ -35,3 +35,6 @@ The full offline suite passed at both widths after replacing profiles 1-3. Check
 
 ## Five named profiles
 Offline checks passed at 1280px and 375px after adding Insan and Neneng B. Verified all five names and exact dialogues, both new local images, named peek and Last served, Neneng B at customer 5, and Bisaya again at customer 6. FIFO, completion, and reset checks remain passing.
+
+## Large Peek preview
+Offline checks passed at both widths. Verified the preview picture exceeds 200px, all five pictures match their front customer and exact dialogue, repeated rendering changes no queue state, and empty/reset states hide and clear the preview. The phone layout was visually inspected.

@@ -83,10 +83,15 @@ function updateDisplay() {
 
   const nextCustomer = peekCustomer();
 
+  $("#peek-portrait, #peek-dialogue").prop("hidden", nextCustomer === null);
   if (nextCustomer === null) {
     $("#next-student").text("None");
+    $("#peek-portrait").attr("class", "student-portrait");
+    $("#peek-dialogue").text("");
   } else {
     $("#next-student").text(customerLabel(nextCustomer));
+    $("#peek-portrait").attr("class", portraitClass(nextCustomer));
+    $("#peek-dialogue").text(STUDENT_MOODS[(nextCustomer.number - 1) % STUDENT_MOODS.length]);
   }
 
   $("#served-count").text(servedCount);

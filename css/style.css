@@ -205,3 +205,9 @@ button:disabled {
 .portrait-4 { background-image: url('../assets/member-5-meme.png'); }
 .student-name { display: block; color: #142d4e; font-size: 1.05rem; font-weight: 700; }
 .student-number { font-size: .75rem; color: #4e6157; font-weight: 400; }
+
+.peek-preview { margin: 16px 0; }
+#peek-portrait { display: block; width: min(100%, 260px); height: auto; aspect-ratio: 1; margin: 0 auto 16px; border: 1px solid #d5ddd5; border-radius: 12px; }
+#peek-portrait[hidden], #peek-dialogue[hidden] { display: none; }
+.peek-name { margin-bottom: 8px; }
+.peek-dialogue { background: #e7f2e9; color: #142d4e; border-left: 4px solid #176b3a; border-radius: 6px; padding: 12px; font-size: 1.05rem; overflow-wrap: anywhere; }

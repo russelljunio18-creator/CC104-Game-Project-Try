@@ -28,6 +28,9 @@ fs.mkdirSync(output, { recursive: true });
       assert.equal(await text('waiting-count'), '0');
       assert.equal(await text('served-count'), '0');
       assert.equal(await text('next-student'), 'None');
+      assert.equal(await page.locator('#peek-portrait').isVisible(), false);
+      assert.equal(await page.locator('#peek-dialogue').isVisible(), false);
+      assert.equal(await text('peek-dialogue'), '');
       assert.equal(await text('last-served'), 'None');
       assert.equal(await text('feedback-message'), '');
       assert.equal(await page.locator('#add-student').isEnabled(), true);
@@ -83,6 +86,9 @@ fs.mkdirSync(output, { recursive: true });
       assert.equal(await page.locator('#served-portrait').isVisible(), true);
       assert.match(await page.locator('#served-portrait').getAttribute('class'), /portrait-0/);
       assert.equal(await text('next-student'), 'Baron #2');
+      assert.equal(await text('peek-dialogue'), 'Nasaan ang sabaw?!');
+      assert.ok(await page.locator('#peek-portrait').evaluate(e => getComputedStyle(e).backgroundImage.includes('member-2-meme.jpg')));
+      assert.ok((await page.locator('#peek-portrait').boundingBox()).width > 200);
       assert.equal(await text('waiting-count'), '3');
       assert.equal(await text('served-count'), '1');
       await click('add-student');
@@ -108,7 +114,17 @@ fs.mkdirSync(output, { recursive: true });
       assert.ok(await page.locator('#waiting-line .student-portrait').nth(4)
         .evaluate(e => getComputedStyle(e).backgroundImage.includes('member-5-meme.png')));
       await page.screenshot({ path: path.join(output, `five-members-${width}.png`), fullPage: true });
-      for (let i = 0; i < 5; i++) await click('serve-student');
+      const expectedDialogues = ['May saging kayo?', 'Nasaan ang sabaw?!', 'Walang kanen busseng??', "Mekus mekus mo na 'yan insan", "'Ma ano ulam?"];
+      for (let i = 0; i < 5; i++) {
+        assert.equal(await text('peek-dialogue'), expectedDialogues[i]);
+        assert.ok(await page.locator('#peek-portrait').evaluate((e, n) => getComputedStyle(e).backgroundImage.includes('member-' + n + '-meme.'), i + 1));
+        const before = await page.evaluate(() => JSON.stringify([queue, nextQueueNumber, servedCount]));
+        await page.evaluate(() => { updateDisplay(); updateDisplay(); });
+        assert.equal(await page.evaluate(() => JSON.stringify([queue, nextQueueNumber, servedCount])), before);
+        await click('serve-student');
+      }
+      assert.equal(await page.locator('#peek-portrait').isVisible(), false);
+      assert.equal(await text('peek-dialogue'), '');
       assert.equal(await text('last-served'), 'Neneng B #5');
       assert.equal(await text('served-joke'), "'Ma ano ulam?");
       await click('add-student');
