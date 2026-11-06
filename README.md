@@ -87,3 +87,10 @@ See `docs/test-results.md` for checked behavior and remaining human checks. Prin
 ## Submission status
 
 The working game and supporting files are prepared. The team still needs to rehearse and explain the final code, record/upload its own group demonstration, confirm the instructor's deadline and identifying details, and submit the printed document and MS Teams materials. Do not describe these activities as finished until they actually occur.
+
+
+## Cartoon assets and lunch-break humor
+
+Four illustrated student portraits and a cheerful rice-graduate mascot add personality while keeping the original navy/green school theme. Portraits cycle by student number and follow the student into Last served; they do not affect queue priority or the one-meal rule. Local files, exact built-in image-generation prompts, and usage notes are documented in `assets/README.md`.
+
+`portraitClass(customer)` selects one quadrant of the student atlas. `STUDENT_MOODS` supplies four cosmetic captions. `updateDisplay()` renders these alongside the original student numbers and restores the empty scene after Reset. The queue functions and success target are unchanged.

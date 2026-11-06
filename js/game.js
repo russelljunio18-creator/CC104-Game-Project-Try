@@ -4,6 +4,18 @@ let servedCount = 0;
 let lastServedCustomer = null;
 const SERVED_TARGET = 10;
 
+// Cosmetic profiles repeat; the unique queue number still identifies each student.
+const STUDENT_MOODS = [
+  "Fuel level: one lecture remaining.",
+  "Calculated the shortest path to lunch.",
+  "Group project? First, rice project.",
+  "Awake in spirit. Hungry in person."
+];
+
+function portraitClass(customer) {
+  return "student-portrait portrait-" + ((customer.number - 1) % STUDENT_MOODS.length);
+}
+
 function enqueueCustomer() {
   if (servedCount >= SERVED_TARGET) {
     return null;
@@ -49,11 +61,17 @@ function updateDisplay() {
   for (const customer of queue) {
     const card = $("<li>");
     card.addClass("student-card list-group-item");
-    card.text("Student #" + customer.number);
+    const portrait = $("<span>").addClass(portraitClass(customer)).attr("aria-hidden", "true");
+    const details = $("<div>").addClass("student-details");
+    $("<span>").addClass("student-number").text("Student #" + customer.number).appendTo(details);
+    $("<span>").addClass("student-mood")
+      .text(STUDENT_MOODS[(customer.number - 1) % STUDENT_MOODS.length]).appendTo(details);
+    card.append(portrait, details);
     $("#waiting-line").append(card);
   }
 
   $("#waiting-count").text(queue.length);
+  $("#waiting-empty").prop("hidden", queue.length > 0);
 
   const nextCustomer = peekCustomer();
 
@@ -66,6 +84,14 @@ function updateDisplay() {
   $("#served-count").text(servedCount);
   $("#last-served").text(lastServedCustomer === null
     ? "None" : "#" + lastServedCustomer.number);
+
+  $("#served-portrait").prop("hidden", lastServedCustomer === null);
+  if (lastServedCustomer !== null) {
+    $("#served-portrait").attr("class", portraitClass(lastServedCustomer));
+  }
+  $("#served-joke").text(lastServedCustomer === null
+    ? "The tray is ready. The students? Debatable."
+    : "Lunch acquired. Academic powers recharging.");
 
   const completed = servedCount >= SERVED_TARGET;
   $("#add-student, #serve-student").prop("disabled", completed);

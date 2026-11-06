@@ -38,14 +38,23 @@ fs.mkdirSync(output, { recursive: true });
       await page.goto(pathToFileURL(path.join(root, 'index.html')).href);
       await page.waitForFunction(() => typeof jQuery === 'function');
       await assertInitial();
+      assert.equal(await page.locator('#waiting-empty').isVisible(), true);
+      assert.equal(await page.locator('#served-portrait').isVisible(), false);
+      assert.equal(await page.locator('img').evaluateAll(imgs => imgs.every(img => img.complete && img.naturalWidth > 0)), true);
+      assert.equal(await page.evaluate(() => new Promise(resolve => {
+        const image = new Image(); image.onload = () => resolve(image.naturalWidth > 0);
+        image.onerror = () => resolve(false); image.src = 'assets/student-portraits.png';
+      })), true);
       assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('#add-student')).getPropertyValue('--bs-btn-bg').trim().length > 0), true);
       await click('serve-student');
       assert.equal(await text('feedback-message'), 'No students waiting. Add a student first.');
       assert.equal(await text('served-count'), '0');
       for (let i = 0; i < 4; i++) await click('add-student');
-      assert.deepEqual(await page.locator('#waiting-line li').allTextContents(),
+      assert.deepEqual(await page.locator('#waiting-line .student-number').allTextContents(),
         ['Student #1', 'Student #2', 'Student #3', 'Student #4']);
       assert.equal(await text('next-student'), '#1');
+      assert.equal(await page.locator('#waiting-empty').isVisible(), false);
+      assert.equal(await page.locator('#waiting-line .student-portrait').count(), 4);
       assert.equal(await text('waiting-count'), '4');
       assert.deepEqual(await page.evaluate(() => {
         const before = JSON.stringify(queue);
@@ -55,11 +64,13 @@ fs.mkdirSync(output, { recursive: true });
       }), [1, 1, true]);
       await click('serve-student');
       assert.equal(await text('last-served'), '#1');
+      assert.equal(await page.locator('#served-portrait').isVisible(), true);
+      assert.match(await page.locator('#served-portrait').getAttribute('class'), /portrait-0/);
       assert.equal(await text('next-student'), '#2');
       assert.equal(await text('waiting-count'), '3');
       assert.equal(await text('served-count'), '1');
       await click('add-student');
-      assert.deepEqual(await page.locator('#waiting-line li').allTextContents(),
+      assert.deepEqual(await page.locator('#waiting-line .student-number').allTextContents(),
         ['Student #2', 'Student #3', 'Student #4', 'Student #5']);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
       await page.screenshot({ path: path.join(output, `playing-${width}.png`), fullPage: true });
