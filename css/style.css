@@ -1,0 +1,131 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px 16px;
+  background-color: #f5f7f2;
+  color: #243247;
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+}
+
+header,
+main {
+  max-width: 1000px;
+  margin-inline: auto;
+}
+
+header {
+  margin-bottom: 24px;
+}
+
+h1,
+h2 {
+  color: #142d4e;
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: 2rem;
+}
+
+h2 {
+  margin-top: 0;
+  font-size: 1.35rem;
+}
+
+section {
+  margin-bottom: 20px;
+  padding: 20px;
+  background-color: #ffffff;
+  border: 1px solid #d5ddd5;
+  border-radius: 12px;
+}
+
+button {
+  font: inherit;
+  font-weight: bold;
+  background-color: #176b3a;
+  color: #ffffff;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 12px 18px;
+  margin: 4px;
+  max-width: 100%;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #10512b;
+}
+
+button:focus-visible {
+  outline: 3px solid #142d4e;
+  outline-offset: 3px;
+}
+
+#reset-game {
+  background-color: #ffffff;
+  color: #176b3a;
+  border-color: #176b3a;
+}
+
+#reset-game:hover {
+  background-color: #e7f2e9;
+}
+
+#waiting-count,
+#served-count {
+  display: inline-block;
+  min-width: 2ch;
+  padding: 4px 10px;
+  background-color: #e7f2e9;
+  color: #142d4e;
+  border-radius: 6px;
+  font-size: 1.4rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+#feedback-message {
+  min-height: 3.5rem;
+  margin-bottom: 0;
+  padding: 12px;
+  background-color: #eef3f8;
+  color: #142d4e;
+  border-left: 4px solid #176b3a;
+  border-radius: 6px;
+  overflow-wrap: anywhere;
+}   
+
+main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+}
+
+main > section {
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+#waiting-line {
+  min-height: 80px;
+  padding: 16px 16px 16px 40px;
+  background-color: #f5f7f2;
+  border: 2px dashed #738578;
+  border-radius: 8px;
+}
+
+@media (min-width: 760px) {
+  main {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  section[aria-labelledby="waiting-line-heading"],
+  section[aria-labelledby="feedback-heading"] {
+    grid-column: 1 / -1;
+  }
+}
