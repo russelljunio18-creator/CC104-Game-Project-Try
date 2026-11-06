@@ -6,9 +6,9 @@ const SERVED_TARGET = 10;
 
 // Cosmetic profiles repeat; the unique queue number still identifies each student.
 const STUDENT_MOODS = [
-  "Fuel level: one lecture remaining.",
-  "Calculated the shortest path to lunch.",
-  "Group project? First, rice project.",
+  "May saging kayo?",
+  "Nasaan ang sabaw?!",
+  "Walang kanen busseng??",
   "Awake in spirit. Hungry in person."
 ];
 
@@ -91,7 +91,7 @@ function updateDisplay() {
   }
   $("#served-joke").text(lastServedCustomer === null
     ? "The tray is ready. The students? Debatable."
-    : "Lunch acquired. Academic powers recharging.");
+    : STUDENT_MOODS[(lastServedCustomer.number - 1) % STUDENT_MOODS.length]);
 
   const completed = servedCount >= SERVED_TARGET;
   $("#add-student, #serve-student").prop("disabled", completed);
