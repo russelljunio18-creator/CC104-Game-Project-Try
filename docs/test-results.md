@@ -38,3 +38,6 @@ Offline checks passed at 1280px and 375px after adding Insan and Neneng B. Verif
 
 ## Large Peek preview
 Offline checks passed at both widths. Verified the preview picture exceeds 200px, all five pictures match their front customer and exact dialogue, repeated rendering changes no queue state, and empty/reset states hide and clear the preview. The phone layout was visually inspected.
+
+## Reden and character audio
+The gameplay suite and tests/audio.cjs passed at 1280px and 375px. All five actual local MP3s decoded and advanced playback offline in a muted test browser. Verified single-player switching, rapid arrivals, stop on Reset, sound toggle, no autoplay on load/re-enable/peek/Serve, and graceful playback rejection without losing an enqueue. No HTTP requests or browser errors. Mapping was explicitly confirmed by the user; this test checks playback, not independent recognition of song content.

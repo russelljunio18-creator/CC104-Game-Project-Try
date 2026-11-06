@@ -5,14 +5,51 @@ let lastServedCustomer = null;
 const SERVED_TARGET = 10;
 
 // Cosmetic profiles repeat; the unique queue number still identifies each student.
-const STUDENT_NAMES = ["Bisaya", "Baron", "Busseng", "Insan", "Neneng B"];
+const STUDENT_NAMES = ["Reden", "Baron", "Busseng", "Insan", "Neneng B"];
 const STUDENT_MOODS = [
-  "May saging kayo?",
+  "🥴",
   "Nasaan ang sabaw?!",
   "Walang kanen busseng??",
   "Mekus mekus mo na 'yan insan",
   "'Ma ano ulam?"
 ];
+
+// Each slot matches the name/dialogue arrays; these local clips work offline.
+const STUDENT_SOUNDS = [
+  "assets/audio/reden.mp3",
+  "assets/audio/baron.mp3",
+  "assets/audio/busseng.mp3",
+  "assets/audio/insan.mp3",
+  "assets/audio/neneng-b.mp3"
+];
+let audioPlaybackId = 0;
+
+function stopCharacterAudio() {
+  audioPlaybackId++;
+  const audio = document.getElementById("character-audio");
+  audio.pause();
+  audio.removeAttribute("src");
+  audio.load();
+  $("#sound-status").text($("#sound-enabled").prop("checked")
+    ? "Add a student to hear their clip." : "Character sounds are off.");
+}
+
+function playCharacterAudio(customer) {
+  // One player means quick Add clicks replace rather than overlap clips.
+  stopCharacterAudio();
+  if (!$("#sound-enabled").prop("checked")) return;
+  const profile = (customer.number - 1) % STUDENT_SOUNDS.length;
+  const audio = document.getElementById("character-audio");
+  const playbackId = audioPlaybackId;
+  audio.src = STUDENT_SOUNDS[profile];
+  $("#sound-status").text(STUDENT_NAMES[profile] + "'s clip");
+  // Playback starts inside the Add click, not on page load or peek.
+  audio.play().catch(function (error) {
+    if (playbackId === audioPlaybackId && error.name !== "AbortError") {
+      $("#sound-status").text("Audio could not play. You can keep playing the game.");
+    }
+  });
+}
 
 function customerLabel(customer) {
   return STUDENT_NAMES[(customer.number - 1) % STUDENT_NAMES.length] + " #" + customer.number;
@@ -55,6 +92,7 @@ function peekCustomer() {
 
 // Reset the data first; the click handler then redraws the interface.
 function resetGame() {
+  stopCharacterAudio();
   queue = [];
   nextQueueNumber = 1;
   servedCount = 0;
@@ -116,6 +154,7 @@ $(function () {
     const customer = enqueueCustomer();
     if (customer !== null) {
       $("#feedback-message").text(customerLabel(customer) + " joined the back of the line.");
+      playCharacterAudio(customer);
     }
     updateDisplay();
   });
@@ -134,6 +173,11 @@ $(function () {
         : "Served " + customerLabel(customer) + ". Enjoy your lunch!");
     }
     updateDisplay();
+  });
+
+  $("#sound-enabled").on("change", function () {
+    if (!this.checked) stopCharacterAudio();
+    else $("#sound-status").text("Add a student to hear their clip.");
   });
 
   $("#reset-game").on("click", function () {

@@ -192,7 +192,7 @@ button:disabled {
   background-position: center;
   background-repeat: no-repeat;
 }
-.portrait-0 { background-image: url('../assets/member-1-meme.jpg'); }
+.portrait-0 { background-image: url('../assets/member-1-reden.png'); }
 .portrait-1 { background-image: url('../assets/member-2-meme.jpg'); }
 .portrait-2 { background-image: url('../assets/member-3-meme.png'); }
 .student-portrait { width: 96px; height: 96px; flex-basis: 96px; border-radius: 8px; }
@@ -211,3 +211,8 @@ button:disabled {
 #peek-portrait[hidden], #peek-dialogue[hidden] { display: none; }
 .peek-name { margin-bottom: 8px; }
 .peek-dialogue { background: #e7f2e9; color: #142d4e; border-left: 4px solid #176b3a; border-radius: 6px; padding: 12px; font-size: 1.05rem; overflow-wrap: anywhere; }
+
+.character-sound-panel { margin-top: 18px; border-top: 1px solid #d5ddd5; padding-top: 14px; }
+.sound-toggle { display: flex; align-items: center; gap: 8px; font-size: .9rem; margin-bottom: 10px; }
+#sound-enabled { accent-color: #176b3a; width: 18px; height: 18px; flex-shrink: 0; }
+#character-audio { display: block; width: 100%; max-width: 100%; margin-bottom: 8px; }
