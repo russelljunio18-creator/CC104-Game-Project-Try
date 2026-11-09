@@ -24,6 +24,20 @@ Bootstrap CSS and jQuery are included locally with license files in their vendor
 
 Serving an empty queue shows a message and changes no data. There is one standard meal, no priority ordering, and no timer.
 
+## Interface layout (redesign)
+
+| Area | What it shows |
+| --- | --- |
+| Header | Title, FIFO instructions, rice mascot |
+| Lunch Rush Progress | Waiting count, Served x/10, progress bar, green success banner at 10 |
+| Waiting Line | Cards in arrival order. Left wall and **FRONT** tag are green; right wall and **BACK** tag are navy. A one-student line shows both tags. Long lines scroll sideways inside the box. |
+| Next Student (Peek) | Large picture, name, number, dialogue; says peek does not remove anyone |
+| Service Counter | The standard meal and the last served student, with an empty state before the first serve |
+| Game Controls | Feedback message plus Add, Serve, Reset. Green = success, amber = invalid action. |
+| Character Sounds | On/off switch, audio player, status line |
+
+On desktop the controls sit in a sticky right-hand column. On phones the controls become a bar pinned to the bottom of the screen, so the buttons and the waiting line are visible together. Only the display code (`updateDisplay` and helpers in `js/game.js`) was redesigned; the queue functions and element IDs are unchanged.
+
 ## Data structure and algorithms
 
 `queue` is an array of customer objects such as `{ number: 1 }`. Index 0 is the front. FIFO means first in, first out: if #1, #2, #3 arrive, #1 is served first. Customer numbers identify students, not current positions; they never change when someone leaves.
@@ -50,9 +64,9 @@ For this array implementation, enqueue is typically amortized O(1), peek is O(1)
 
 ## Technologies and files
 
-- HTML: semantic screen areas and accessible feedback status.
-- Bootstrap: local button, list-item, flex, spacing, and responsive utility classes.
-- Custom CSS: school colors, cards, responsive grid, and readable feedback.
+- HTML: semantic screen areas (header, main, aside) and accessible feedback status.
+- Bootstrap: local grid, cards, badges, buttons, progress bar, form switch, alert, and responsive utility classes.
+- Custom CSS: cream/navy/green theme, Front/Back lane, phone control bar, focus styles, and reduced-motion-safe animation.
 - JavaScript: queue and game state, operations, and guards.
 - jQuery: click handlers, card creation, text updates, and disabled controls.
 - GitHub: shared source history and team reviews.
@@ -67,7 +81,9 @@ docs/project-report.html     Printable project document
 docs/demo-guide.md           Group demonstration and explanation guide
 docs/test-results.md         Actual automated verification record
 docs/screenshots/            Actual game screenshots
-tests/offline.cjs            Optional developer browser checks
+tests/offline.cjs            Optional developer browser checks (gameplay)
+tests/audio.cjs              Optional developer browser checks (sound)
+tests/layout.cjs             Optional developer browser checks (redesigned interface)
 ```
 
 ## Screenshots
