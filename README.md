@@ -47,6 +47,7 @@ On desktop the controls sit in a sticky right-hand column. On phones the control
 | `queue` | Waiting customers in arrival order |
 | `nextQueueNumber` | Number assigned to the next arrival |
 | `servedCount` | Successful serves, from 0 to 10 |
+| `servedCustomers` | Served students seated at the lunch table, in serving order |
 | `lastServedCustomer` | Customer shown at the counter, initially `null` |
 | `SERVED_TARGET` | Completion target: 10 |
 
@@ -112,8 +113,10 @@ Five named user-supplied meme portraits, and a cheerful rice-graduate mascot add
 `portraitClass(customer)` selects a member profile: one of five local meme photos. `STUDENT_NAMES` and `STUDENT_MOODS` supply five cosmetic character names and captions. `updateDisplay()` renders these alongside the original student numbers and restores the empty scene after Reset. The queue functions and success target are unchanged.
 
 
-## Character sounds
+## Character sounds and Lunch Table
 
-The five characters are Reden (🥴), Baron, Busseng, Insan, and Neneng B. A successful Add Student click plays that character's user-supplied local MP3. One player replaces the previous clip when another student joins, so clips never overlap. Reset stops sound. Uncheck **Play character sounds on Add** for quiet play; the preference lasts until refresh. The audio controls provide pause, seeking, and volume. No sound starts on page load, peek, or Serve. Audio playback failures do not block gameplay.
+Only the front student's local clip plays, as if talking at the counter. The first arrival starts speaking; adding students behind them does not replace or restart their clip. Serve moves the voice to the next waiting student. An empty queue, success at 10, or Reset stops playback. The **Hear the front student** switch silences playback; switching it back on plays the current front student. One audio element prevents overlap. Peek and display refreshes never restart sound. Audio errors do not block gameplay.
 
-The confirmed original filenames and character mappings are in `assets/README.md`. The sound files and Reden portrait are user-supplied and copied unchanged.
+Successfully served students move into the **Lunch Table**, in serving order, with their portrait, name, queue number, meal, and “Served · Enjoying lunch” label. They remain seated until Reset. A separate `servedCustomers` array stores this history; serving an empty queue cannot add a seat. The seated count matches the served count, including all 10 at success. Small eating animations respect reduced-motion preferences.
+
+`syncFrontAudio()` tracks the unique front customer's number to avoid replaying on rear arrivals. `dequeueCustomer()` appends the removed customer to `servedCustomers`. Reset clears both the waiting line and lunch table. These features retain FIFO processing and the one-standard-meal rule.

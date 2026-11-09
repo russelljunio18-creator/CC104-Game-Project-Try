@@ -18,6 +18,7 @@ let queue = [];              // index 0 is the FRONT of the line, the last index
 let nextQueueNumber = 1;     // the number the next arrival will get
 let servedCount = 0;         // successful serves so far
 let lastServedCustomer = null;
+let servedCustomers = []; // Students seated at the lunch table, in serving order.
 const SERVED_TARGET = 10;    // serve this many students to win
 
 // Only used for the "pop in" animation of the newest card.
@@ -79,6 +80,7 @@ function dequeueCustomer() {
 
   const customer = queue.shift();
   servedCount++;
+  servedCustomers.push(customer);
 
   return customer;
 }
@@ -98,32 +100,36 @@ function resetGame() {
   nextQueueNumber = 1;
   servedCount = 0;
   lastServedCustomer = null;
+  servedCustomers = [];
 }
 
 
 /* ---------- 4. AUDIO ---------- */
 let audioPlaybackId = 0;
+let speakingCustomerNumber = null;
 
 function stopCharacterAudio() {
   audioPlaybackId++;
+  speakingCustomerNumber = null;
   const audio = document.getElementById("character-audio");
   audio.pause();
   audio.removeAttribute("src");
   audio.load();
   $("#sound-status").text($("#sound-enabled").prop("checked")
-    ? "Add a student to hear their clip." : "Character sounds are off.");
+    ? "The front student speaks when it is their turn." : "Character sounds are off.");
 }
 
 function playCharacterAudio(customer) {
-  // One player means quick Add clicks replace rather than overlap clips.
+  // One player speaks for the front student only.
   stopCharacterAudio();
   if (!$("#sound-enabled").prop("checked")) return;
+  speakingCustomerNumber = customer.number;
   const profile = characterIndex(customer);
   const audio = document.getElementById("character-audio");
   const playbackId = audioPlaybackId;
   audio.src = STUDENT_SOUNDS[profile];
-  $("#sound-status").text(STUDENT_NAMES[profile] + "'s clip");
-  // Playback starts inside the Add click, not on page load or peek.
+  $("#sound-status").text(customerLabel(customer) + " is talking at the counter.");
+  // Called from a player action when a new customer reaches the front.
   audio.play().catch(function (error) {
     if (playbackId === audioPlaybackId && error.name !== "AbortError") {
       $("#sound-status").text("Audio could not play. You can keep playing the game.");
@@ -131,6 +137,17 @@ function playCharacterAudio(customer) {
   });
 }
 
+
+// Adding behind the front does not restart or replace the current speaker.
+// Keep this out of updateDisplay(): peek and rendering must remain read-only.
+function syncFrontAudio() {
+  const front = peekCustomer();
+  if (!$("#sound-enabled").prop("checked") || front === null || servedCount >= SERVED_TARGET) {
+    stopCharacterAudio();
+    return;
+  }
+  if (speakingCustomerNumber !== front.number) playCharacterAudio(front);
+}
 
 /* ---------- 5. DISPLAY + EVENTS ---------- */
 
@@ -227,6 +244,20 @@ function updateDisplay() {
     ? "The tray is ready. The students? Debatable."
     : STUDENT_MOODS[characterIndex(lastServedCustomer)]);
 
+  // --- Lunch table: a separate history, never added back to the waiting queue.
+  $("#lunch-guests").empty();
+  for (const customer of servedCustomers) {
+    const seat = $("<li>").addClass("lunch-seat");
+    $("<span>").addClass(portraitClass(customer)).attr("aria-hidden", "true").appendTo(seat);
+    $("<strong>").addClass("lunch-guest-name").text(customerLabel(customer)).appendTo(seat);
+    $("<span>").addClass("lunch-plate").attr("aria-hidden", "true").text("🍛 🥄").appendTo(seat);
+    $("<span>").addClass("lunch-status").text("Served · Enjoying lunch").appendTo(seat);
+    seat.appendTo("#lunch-guests");
+  }
+  $("#lunch-empty").prop("hidden", servedCustomers.length > 0);
+  $("#lunch-guests").prop("hidden", servedCustomers.length === 0);
+  $("#lunch-count").text(servedCustomers.length);
+
   // --- Progress: counts, bar and success state
   const completed = servedCount >= SERVED_TARGET;
   $("#served-count").text(servedCount);
@@ -258,7 +289,7 @@ $(function () {
     if (customer !== null) {
       lastAddedNumber = customer.number;
       setFeedback(customerLabel(customer) + " joined the back of the line.", "ok");
-      playCharacterAudio(customer);
+      syncFrontAudio();
     }
     updateDisplay();
     if (customer !== null) scrollLaneTo("back");   // show the new arrival
@@ -279,12 +310,13 @@ $(function () {
         : "Served " + customerLabel(customer) + ". Enjoy your lunch!", "ok");
     }
     updateDisplay();
+    syncFrontAudio();
     if (customer !== null) scrollLaneTo("front");  // the next student is now at the front
   });
 
   $("#sound-enabled").on("change", function () {
     if (!this.checked) stopCharacterAudio();
-    else $("#sound-status").text("Add a student to hear their clip.");
+    else syncFrontAudio();
   });
 
   $("#reset-game").on("click", function () {

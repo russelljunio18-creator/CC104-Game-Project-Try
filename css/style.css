@@ -1034,3 +1034,17 @@ audio:focus-visible {
     margin-top: 1.5rem;
   }
 }
+
+/* Served students gather around a shared cafeteria table. */
+.lunch-table { list-style: none; padding: 18px; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); gap: 16px; background: repeating-linear-gradient(0deg, #e9ddbc 0px, #e9ddbc 29px, #dfd0a8 30px, #e9ddbc 31px); border: 3px solid #c5b182; border-radius: 18px; box-shadow: 0 6px 0 #b6a178; }
+.lunch-table[hidden] { display: none; }
+.lunch-seat { min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; background: #fffdf6; border: 2px solid #e4d6b1; border-radius: 14px; padding: 12px 8px; }
+.lunch-seat .student-portrait { width: 82px; height: 82px; flex-basis: auto; background-size: contain; animation: lunch-nibble 2.2s ease-in-out infinite; }
+.lunch-seat:nth-child(even) .student-portrait { animation-delay: -.8s; }
+.lunch-guest-name { font-size: .95rem; color: #142d4e; }
+.lunch-plate { display: block; font-size: 1.8rem; border-bottom: 3px solid #176b3a; border-radius: 50%; padding: 0 10px; }
+.lunch-status { color: #176b3a; font-size: .75rem; font-weight: 700; }
+.lunch-empty { padding: 22px; background: #f6efdd; border: 2px dashed #c5b182; border-radius: 12px; margin: 0; }
+@keyframes lunch-nibble { 0%, 100% { transform: rotate(-2deg); } 50% { transform: translateY(2px) rotate(2deg); } }
+@media (prefers-reduced-motion: reduce) { .lunch-seat .student-portrait { animation: none; } }
+@media (max-width: 575px) { .lunch-table { padding: 10px; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); } .lunch-guest-name { font-size: .85rem; } }

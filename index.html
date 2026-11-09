@@ -140,6 +140,17 @@
                         </div>
                     </div>
 
+                    <section id="lunch-section" class="card canteen-card" aria-labelledby="lunch-heading">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center gap-2">
+                                <h2 id="lunch-heading" class="section-title">Lunch Table</h2>
+                                <span class="badge rounded-pill text-bg-success"><span id="lunch-count">0</span> seated</span>
+                            </div>
+                            <p class="explainer">Already served, now enjoying lunch. No more queue drama.</p>
+                            <p id="lunch-empty" class="lunch-empty">The seats are ready. Serve the first student to start the lunch party!</p>
+                            <ol id="lunch-guests" class="lunch-table" aria-label="Served students eating lunch, in serving order" hidden></ol>
+                        </div>
+                    </section>
                 </div>
             </div>
 
@@ -168,10 +179,10 @@
                             <h2 id="sound-heading" class="section-title">Character Sounds</h2>
                             <div class="form-check form-switch sound-toggle">
                                 <input class="form-check-input" type="checkbox" role="switch" id="sound-enabled" checked>
-                                <label class="form-check-label" for="sound-enabled">Play character sounds on Add</label>
+                                <label class="form-check-label" for="sound-enabled">Hear the front student</label>
                             </div>
                             <audio id="character-audio" controls preload="none" aria-label="Character music player"></audio>
-                            <p id="sound-status" class="canteen-aside" role="status">Add a student to hear their clip.</p>
+                            <p id="sound-status" class="canteen-aside" role="status">The front student speaks when it is their turn.</p>
                         </div>
                     </section>
 
