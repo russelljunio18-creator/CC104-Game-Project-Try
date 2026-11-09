@@ -41,3 +41,29 @@ Offline checks passed at both widths. Verified the preview picture exceeds 200px
 
 ## Reden and character audio
 The gameplay suite and tests/audio.cjs passed at 1280px and 375px. All five actual local MP3s decoded and advanced playback offline in a muted test browser. Verified single-player switching, rapid arrivals, stop on Reset, sound toggle, no autoplay on load/re-enable/peek/Serve, and graceful playback rejection without losing an enqueue. No HTTP requests or browser errors. Mapping was explicitly confirmed by the user; this test checks playback, not independent recognition of song content.
+
+
+## Interface redesign verification
+Run with Google Chrome (headless) from file://, networking disabled, Playwright. The original `tests/offline.cjs` and `tests/audio.cjs` passed unmodified before and after the redesign. The new `tests/layout.cjs` passed at 1280x900, 768x900, 390x844, 360x640 and 320x640.
+
+| Check | Result |
+| --- | --- |
+| Empty states: line, peek, last served, success banner, feedback hint | PASS |
+| Invalid Serve: amber feedback, counts unchanged | PASS |
+| FRONT only on first card, BACK only on last, both on a lone student; tags move after Serve | PASS |
+| Progress bar value/aria and caption at 0, 1 and 10 served; success banner and disabled Add/Serve at 10; Reset clears all | PASS |
+| Long line (14 students): scrolls sideways inside its box, hint appears, Add scrolls to Back, Serve returns to Front | PASS |
+| Phones 360px and wider: controls pinned to bottom; front card visible above them | PASS |
+| Phones at 320x640: controls pinned and usable, no overflow; only the top of the front card fits above the bar | Known limit |
+| Desktop: controls beside the line, on screen without scrolling | PASS |
+| No horizontal page overflow in any state | PASS |
+| Keyboard: skip link, Tab order, Space/Enter on all buttons, 3px focus ring, lane reachable by keyboard | PASS |
+| Reduced motion: no pop-in animation; with motion allowed the newest card animates | PASS |
+| Portraits use background-size contain; mascots keep their aspect ratio | PASS |
+| No remote URLs in source, no console errors, no HTTP requests | PASS |
+| Text/background contrast, computed for 20 colour pairs (lowest 5.77:1) | PASS (WCAG AA) |
+
+Not tested: real phones or Safari/Firefox, a screen reader, and listening to the audio (playback is verified through the audio element, with the browser muted). Screenshots were inspected visually in headless Chrome.
+
+## Adoption verification — 2026-11-09
+The approved redesign was applied to the existing repository while preserving assets. All three suites (offline.cjs, audio.cjs, layout.cjs) passed locally in Microsoft Edge. Layout widths: 1280, 768, 390, 360, and 320px. Gameplay and actual offline audio playback: 1280 and 375px. Keyboard, reduced motion, long queue scrolling, reset, completion, and absence of HTTP requests were verified.

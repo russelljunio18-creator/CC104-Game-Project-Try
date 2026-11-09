@@ -1,10 +1,31 @@
-let queue = [];
-let nextQueueNumber = 1;
-let servedCount = 0;
-let lastServedCustomer = null;
-const SERVED_TARGET = 10;
+/* =====================================================================
+   Campus Canteen: Lunch Line
 
-// Cosmetic profiles repeat; the unique queue number still identifies each student.
+   This file has five parts:
+     1. GAME DATA        - the queue and the counters
+     2. CHARACTERS       - names, dialogue and sounds (cosmetic only)
+     3. QUEUE LOGIC      - enqueue / dequeue / peek / reset (no screen code!)
+     4. AUDIO            - one player, one clip at a time
+     5. DISPLAY + EVENTS - jQuery draws the screen and listens for clicks
+
+   The queue logic never touches the page. The display code only READS the
+   data and draws it. That keeps the data structure easy to explain.
+   ===================================================================== */
+
+
+/* ---------- 1. GAME DATA ---------- */
+let queue = [];              // index 0 is the FRONT of the line, the last index is the BACK
+let nextQueueNumber = 1;     // the number the next arrival will get
+let servedCount = 0;         // successful serves so far
+let lastServedCustomer = null;
+const SERVED_TARGET = 10;    // serve this many students to win
+
+// Only used for the "pop in" animation of the newest card.
+let lastAddedNumber = null;
+
+
+/* ---------- 2. CHARACTERS ---------- */
+// Cosmetic profiles repeat every five arrivals; the unique queue number still identifies each student.
 const STUDENT_NAMES = ["Reden", "Baron", "Busseng", "Insan", "Neneng B"];
 const STUDENT_MOODS = [
   "🥴",
@@ -22,43 +43,23 @@ const STUDENT_SOUNDS = [
   "assets/audio/insan.mp3",
   "assets/audio/neneng-b.mp3"
 ];
-let audioPlaybackId = 0;
 
-function stopCharacterAudio() {
-  audioPlaybackId++;
-  const audio = document.getElementById("character-audio");
-  audio.pause();
-  audio.removeAttribute("src");
-  audio.load();
-  $("#sound-status").text($("#sound-enabled").prop("checked")
-    ? "Add a student to hear their clip." : "Character sounds are off.");
-}
-
-function playCharacterAudio(customer) {
-  // One player means quick Add clicks replace rather than overlap clips.
-  stopCharacterAudio();
-  if (!$("#sound-enabled").prop("checked")) return;
-  const profile = (customer.number - 1) % STUDENT_SOUNDS.length;
-  const audio = document.getElementById("character-audio");
-  const playbackId = audioPlaybackId;
-  audio.src = STUDENT_SOUNDS[profile];
-  $("#sound-status").text(STUDENT_NAMES[profile] + "'s clip");
-  // Playback starts inside the Add click, not on page load or peek.
-  audio.play().catch(function (error) {
-    if (playbackId === audioPlaybackId && error.name !== "AbortError") {
-      $("#sound-status").text("Audio could not play. You can keep playing the game.");
-    }
-  });
+// Student #1 -> character 0, #2 -> 1, ... #6 -> 0 again.
+function characterIndex(customer) {
+  return (customer.number - 1) % STUDENT_NAMES.length;
 }
 
 function customerLabel(customer) {
-  return STUDENT_NAMES[(customer.number - 1) % STUDENT_NAMES.length] + " #" + customer.number;
+  return STUDENT_NAMES[characterIndex(customer)] + " #" + customer.number;
 }
 
+// CSS class that picks this character's photo (portrait-0 ... portrait-4).
 function portraitClass(customer) {
-  return "student-portrait portrait-" + ((customer.number - 1) % STUDENT_MOODS.length);
+  return "student-portrait portrait-" + characterIndex(customer);
 }
 
+
+/* ---------- 3. QUEUE LOGIC ---------- */
 function enqueueCustomer() {
   if (servedCount >= SERVED_TARGET) {
     return null;
@@ -99,29 +100,110 @@ function resetGame() {
   lastServedCustomer = null;
 }
 
+
+/* ---------- 4. AUDIO ---------- */
+let audioPlaybackId = 0;
+
+function stopCharacterAudio() {
+  audioPlaybackId++;
+  const audio = document.getElementById("character-audio");
+  audio.pause();
+  audio.removeAttribute("src");
+  audio.load();
+  $("#sound-status").text($("#sound-enabled").prop("checked")
+    ? "Add a student to hear their clip." : "Character sounds are off.");
+}
+
+function playCharacterAudio(customer) {
+  // One player means quick Add clicks replace rather than overlap clips.
+  stopCharacterAudio();
+  if (!$("#sound-enabled").prop("checked")) return;
+  const profile = characterIndex(customer);
+  const audio = document.getElementById("character-audio");
+  const playbackId = audioPlaybackId;
+  audio.src = STUDENT_SOUNDS[profile];
+  $("#sound-status").text(STUDENT_NAMES[profile] + "'s clip");
+  // Playback starts inside the Add click, not on page load or peek.
+  audio.play().catch(function (error) {
+    if (playbackId === audioPlaybackId && error.name !== "AbortError") {
+      $("#sound-status").text("Audio could not play. You can keep playing the game.");
+    }
+  });
+}
+
+
+/* ---------- 5. DISPLAY + EVENTS ---------- */
+
+// Shows a message in the feedback box. kind is "ok" (green), "warn" (amber) or nothing (neutral).
+function setFeedback(message, kind) {
+  $("#feedback-message")
+    .text(message)
+    .removeClass("feedback-ok feedback-warn")
+    .addClass(kind ? "feedback-" + kind : "");
+}
+
+// Builds one student card for the waiting line.
+// isFront / isBack decide which tag(s) the card wears.
+function buildStudentCard(customer, isFront, isBack) {
+  const card = $("<li>").addClass("student-card card");
+  if (isFront) card.addClass("is-front");
+  if (isBack) card.addClass("is-back");
+  if (customer.number === lastAddedNumber) card.addClass("is-new");
+
+  // FRONT / BACK tags (a one-student line is both at the same time)
+  if (isFront || isBack) {
+    const tags = $("<span>").addClass("position-tags");
+    if (isFront) $("<span>").addClass("badge rounded-pill position-tag tag-front").text("Front").appendTo(tags);
+    if (isBack) $("<span>").addClass("badge rounded-pill position-tag tag-back").text("Back").appendTo(tags);
+    card.append(tags);
+  }
+
+  const portrait = $("<span>").addClass(portraitClass(customer)).attr("aria-hidden", "true");
+  const details = $("<div>").addClass("student-details");
+  $("<span>").addClass("student-name")
+    .text(STUDENT_NAMES[characterIndex(customer)]).appendTo(details);
+  $("<span>").addClass("student-number").text("Student #" + customer.number).appendTo(details);
+  $("<span>").addClass("student-mood")
+    .text(STUDENT_MOODS[characterIndex(customer)]).appendTo(details);
+  card.append(portrait, details);
+  return card;
+}
+
+// Long lines scroll sideways. Show a hint only when something is off-screen.
+function updateLaneHint() {
+  const lane = document.getElementById("waiting-line");
+  $("#lane-hint").prop("hidden", lane.scrollWidth <= lane.clientWidth + 1);
+}
+
+// Moves the scrollable line so the Front or the Back is in view.
+function scrollLaneTo(end) {
+  const lane = document.getElementById("waiting-line");
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  lane.scrollTo({
+    left: end === "back" ? lane.scrollWidth : 0,
+    behavior: reduceMotion ? "auto" : "smooth"
+  });
+}
+
 function updateDisplay() {
+  // --- Waiting line: walk through the queue from front to back and draw a card for each student
   $("#waiting-line").empty();
 
-  for (const customer of queue) {
-    const card = $("<li>");
-    card.addClass("student-card list-group-item");
-    const portrait = $("<span>").addClass(portraitClass(customer)).attr("aria-hidden", "true");
-    const details = $("<div>").addClass("student-details");
-    $("<span>").addClass("student-name")
-      .text(STUDENT_NAMES[(customer.number - 1) % STUDENT_NAMES.length]).appendTo(details);
-    $("<span>").addClass("student-number").text("Student #" + customer.number).appendTo(details);
-    $("<span>").addClass("student-mood")
-      .text(STUDENT_MOODS[(customer.number - 1) % STUDENT_MOODS.length]).appendTo(details);
-    card.append(portrait, details);
-    $("#waiting-line").append(card);
+  for (let i = 0; i < queue.length; i++) {
+    const isFront = (i === 0);
+    const isBack = (i === queue.length - 1);
+    $("#waiting-line").append(buildStudentCard(queue[i], isFront, isBack));
   }
 
   $("#waiting-count").text(queue.length);
   $("#waiting-empty").prop("hidden", queue.length > 0);
+  updateLaneHint();
 
+  // --- Peek: the student at the front (never removed)
   const nextCustomer = peekCustomer();
 
   $("#peek-portrait, #peek-dialogue").prop("hidden", nextCustomer === null);
+  $("#peek-placeholder").prop("hidden", nextCustomer !== null);
   if (nextCustomer === null) {
     $("#next-student").text("None");
     $("#peek-portrait").attr("class", "student-portrait");
@@ -129,22 +211,43 @@ function updateDisplay() {
   } else {
     $("#next-student").text(customerLabel(nextCustomer));
     $("#peek-portrait").attr("class", portraitClass(nextCustomer));
-    $("#peek-dialogue").text(STUDENT_MOODS[(nextCustomer.number - 1) % STUDENT_MOODS.length]);
+    $("#peek-dialogue").text(STUDENT_MOODS[characterIndex(nextCustomer)]);
   }
 
-  $("#served-count").text(servedCount);
+  // --- Service counter: the most recently served student
   $("#last-served").text(lastServedCustomer === null
     ? "None" : customerLabel(lastServedCustomer));
 
   $("#served-portrait").prop("hidden", lastServedCustomer === null);
+  $("#served-placeholder").prop("hidden", lastServedCustomer !== null);
   if (lastServedCustomer !== null) {
     $("#served-portrait").attr("class", portraitClass(lastServedCustomer));
   }
   $("#served-joke").text(lastServedCustomer === null
     ? "The tray is ready. The students? Debatable."
-    : STUDENT_MOODS[(lastServedCustomer.number - 1) % STUDENT_MOODS.length]);
+    : STUDENT_MOODS[characterIndex(lastServedCustomer)]);
 
+  // --- Progress: counts, bar and success state
   const completed = servedCount >= SERVED_TARGET;
+  $("#served-count").text(servedCount);
+  $("#served-target").text(SERVED_TARGET);
+  $("#served-progress-bar").css("width", (servedCount / SERVED_TARGET * 100) + "%");
+  $("#served-progress-track")
+    .attr("aria-valuenow", servedCount)
+    .attr("aria-valuemax", SERVED_TARGET)
+    .attr("aria-valuetext", servedCount + " of " + SERVED_TARGET + " students served");
+
+  if (completed) {
+    $("#progress-caption").text("Lunch rush complete!");
+  } else if (servedCount === 0) {
+    $("#progress-caption").text("Serve " + SERVED_TARGET + " students to finish the lunch rush.");
+  } else {
+    $("#progress-caption").text((SERVED_TARGET - servedCount) + " more to go!");
+  }
+  $("#progress-section").toggleClass("is-complete", completed);
+  $("#success-banner").prop("hidden", !completed);
+
+  // --- Controls: Add and Serve are off once the game is complete
   $("#add-student, #serve-student").prop("disabled", completed);
   $("#feedback-message").toggleClass("game-complete", completed);
 }
@@ -153,10 +256,12 @@ $(function () {
   $("#add-student").on("click", function () {
     const customer = enqueueCustomer();
     if (customer !== null) {
-      $("#feedback-message").text(customerLabel(customer) + " joined the back of the line.");
+      lastAddedNumber = customer.number;
+      setFeedback(customerLabel(customer) + " joined the back of the line.", "ok");
       playCharacterAudio(customer);
     }
     updateDisplay();
+    if (customer !== null) scrollLaneTo("back");   // show the new arrival
   });
 
   $("#serve-student").on("click", function () {
@@ -164,15 +269,17 @@ $(function () {
     if (customer === null) {
       // The data layer also guards completion, even if called without a button.
       if (servedCount < SERVED_TARGET) {
-        $("#feedback-message").text("No students waiting. Add a student first.");
+        setFeedback("No students waiting. Add a student first.", "warn");
       }
     } else {
       lastServedCustomer = customer;
-      $("#feedback-message").text(servedCount >= SERVED_TARGET
+      lastAddedNumber = null;
+      setFeedback(servedCount >= SERVED_TARGET
         ? "Success! You served 10 students. Lunch rush complete! Select Reset to play again."
-        : "Served " + customerLabel(customer) + ". Enjoy your lunch!");
+        : "Served " + customerLabel(customer) + ". Enjoy your lunch!", "ok");
     }
     updateDisplay();
+    if (customer !== null) scrollLaneTo("front");  // the next student is now at the front
   });
 
   $("#sound-enabled").on("change", function () {
@@ -182,9 +289,13 @@ $(function () {
 
   $("#reset-game").on("click", function () {
     resetGame();
-    $("#feedback-message").text("");
+    lastAddedNumber = null;
+    setFeedback("");
     updateDisplay();
   });
+
+  // The "scroll sideways" hint depends on the window width.
+  $(window).on("resize", updateLaneHint);
 
   updateDisplay();
 });
