@@ -67,3 +67,6 @@ Not tested: real phones or Safari/Firefox, a screen reader, and listening to the
 
 ## Adoption verification — 2026-11-09
 The approved redesign was applied to the existing repository while preserving assets. All three suites (offline.cjs, audio.cjs, layout.cjs) passed locally in Microsoft Edge. Layout widths: 1280, 768, 390, 360, and 320px. Gameplay and actual offline audio playback: 1280 and 375px. Keyboard, reduced motion, long queue scrolling, reset, completion, and absence of HTTP requests were verified.
+
+## Front-only voice and Lunch Table
+Verified actual offline clips follow the front across all five profiles, rear arrivals and peek never restart audio, mute/resume follows the current front, and empty queue/completion/Reset stop playback. Verified FIFO seating history, no seat on invalid serve, all 10 seats at success, clearing on Reset, rapid actions, failure isolation, and reduced-motion support. Gameplay, audio, and layout suites passed. Earlier Add-trigger audio descriptions above are historical and superseded by this behavior.

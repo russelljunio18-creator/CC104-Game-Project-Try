@@ -40,4 +40,4 @@ Files are copied unchanged and bundled locally. The user confirmed these mapping
 - `insan.mp3` ← `mekus mekus mona yan insan #funnyshorts #trendingshorts.mp3`
 - `neneng-b.mp3` ← `SnapSave.to-609802461653435-(320kbps).mp3`
 
-One audio player starts the matching clip only after a successful Add click. A new arrival replaces the previous clip. Reset stops playback; the checkbox turns character sounds off. The built-in audio controls offer pause, seek, and volume. No audio plays automatically on page load or peek.
+One audio player speaks for the current front customer. Adding behind the front does not restart sound; serving advances the voice to the new front. Empty queue, completion, Reset, or disabling sounds stops playback. Enabling sounds plays the current front. Built-in controls offer pause, seek, and volume. No audio plays on page load or peek.
