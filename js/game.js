@@ -6,7 +6,8 @@
      2. CHARACTERS       - names, dialogue and sounds (cosmetic only)
      3. QUEUE LOGIC      - enqueue / dequeue / peek / reset (no screen code!)
      4. AUDIO            - one player, one clip at a time
-     5. DISPLAY + EVENTS - jQuery draws the screen and listens for clicks
+     5. ARRIVALS         - starts and stops timed student arrivals
+     6. DISPLAY + EVENTS - jQuery draws the screen and listens for clicks
 
    The queue logic never touches the page. The display code only READS the
    data and draws it. That keeps the data structure easy to explain.
@@ -23,6 +24,11 @@ const SERVED_TARGET = 10;    // serve this many students to win
 
 // Only used for the "pop in" animation of the newest card.
 let lastAddedNumber = null;
+
+// The arrival timer belongs to the game controls, not to the queue itself.
+let arrivalTimerId = null;
+let gameStarted = false;
+const ARRIVAL_INTERVAL_MS = 3000;
 
 
 /* ---------- 2. CHARACTERS ---------- */
@@ -95,6 +101,8 @@ function peekCustomer() {
 
 // Reset the data first; the click handler then redraws the interface.
 function resetGame() {
+  stopCustomerArrivals();
+  gameStarted = false;
   stopCharacterAudio();
   queue = [];
   nextQueueNumber = 1;
@@ -149,7 +157,49 @@ function syncFrontAudio() {
   if (speakingCustomerNumber !== front.number) playCharacterAudio(front);
 }
 
-/* ---------- 5. DISPLAY + EVENTS ---------- */
+/* ---------- 5. ARRIVALS ---------- */
+
+function stopCustomerArrivals() {
+  if (arrivalTimerId !== null) {
+    window.clearInterval(arrivalTimerId);
+    arrivalTimerId = null;
+  }
+}
+
+function addArrivingCustomer() {
+  const customer = enqueueCustomer();
+
+  if (customer === null) {
+    stopCustomerArrivals();
+    updateDisplay();
+    return null;
+  }
+
+  lastAddedNumber = customer.number;
+  setFeedback(customerLabel(customer) + " joined the back of the line.", "ok");
+  syncFrontAudio();
+  updateDisplay();
+
+  return customer;
+}
+
+function startGame() {
+  if (gameStarted || servedCount >= SERVED_TARGET) {
+    return null;
+  }
+
+  gameStarted = true;
+  const firstCustomer = addArrivingCustomer();
+
+  if (firstCustomer !== null) {
+    arrivalTimerId = window.setInterval(addArrivingCustomer, ARRIVAL_INTERVAL_MS);
+  }
+
+  return firstCustomer;
+}
+
+
+/* ---------- 6. DISPLAY + EVENTS ---------- */
 
 // Shows a message in the feedback box. kind is "ok" (green), "warn" (amber) or nothing (neutral).
 function setFeedback(message, kind) {
@@ -278,21 +328,15 @@ function updateDisplay() {
   $("#progress-section").toggleClass("is-complete", completed);
   $("#success-banner").prop("hidden", !completed);
 
-  // --- Controls: Add and Serve are off once the game is complete
-  $("#add-student, #serve-student").prop("disabled", completed);
+  // --- Controls: Start is available once per round; Serve is off when complete.
+  $("#start-game").prop("disabled", gameStarted || completed);
+  $("#serve-student").prop("disabled", completed);
   $("#feedback-message").toggleClass("game-complete", completed);
 }
 
 $(function () {
-  $("#add-student").on("click", function () {
-    const customer = enqueueCustomer();
-    if (customer !== null) {
-      lastAddedNumber = customer.number;
-      setFeedback(customerLabel(customer) + " joined the back of the line.", "ok");
-      syncFrontAudio();
-    }
-    updateDisplay();
-    if (customer !== null) scrollLaneTo("back");   // show the new arrival
+  $("#start-game").on("click", function () {
+    startGame();
   });
 
   $("#serve-student").on("click", function () {
@@ -305,6 +349,9 @@ $(function () {
     } else {
       lastServedCustomer = customer;
       lastAddedNumber = null;
+      if (servedCount >= SERVED_TARGET) {
+        stopCustomerArrivals();
+      }
       setFeedback(servedCount >= SERVED_TARGET
         ? "Success! You served 10 students. Lunch rush complete! Select Reset to play again."
         : "Served " + customerLabel(customer) + ". Enjoy your lunch!", "ok");
