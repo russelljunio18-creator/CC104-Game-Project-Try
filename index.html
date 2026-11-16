@@ -1,201 +1,171 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Campus Canteen: Lunch Line</title>
-    <!-- Everything is loaded from local folders, so the game works offline. -->
     <link rel="stylesheet" href="css/vendor/bootstrap.min.css">
     <link rel="stylesheet" href="css/style.css">
     <script src="js/vendor/jquery-3.6.3.js" defer></script>
+    <script src="js/sprites.js" defer></script>
     <script src="js/game.js" defer></script>
 </head>
 <body>
-    <!-- Keyboard users can jump straight to the buttons. -->
-    <a class="visually-hidden-focusable skip-link" href="#controls">Skip to game controls</a>
+<!-- The whole game is one fixed 960 x 540 "stage" that js/game.js scales to fit the window. -->
+<main id="stage-wrap">
+<div id="stage">
 
-    <!-- 1. HEADER: title, FIFO instructions, rice mascot -->
-    <header class="canteen-header">
-        <div class="container">
-            <div class="header-inner">
-                <div class="header-text">
-                    <p class="school-label d-none d-sm-inline-block">CAMPUS CANTEEN / LUNCH BREAK</p>
-                    <h1>Campus Canteen: Lunch Line</h1>
-                </div>
-                <img class="header-mascot" src="assets/lunch-mascot.png" alt="Grinning rice mascot wearing a graduation cap on a lunch tray" width="160" height="160">
-                <div class="header-copy">
-                    <p class="header-instructions">
-                        Add students at the back of the line and serve them from the front.
-                        First in, first out (FIFO). Serve 10 students to complete the lunch rush!
-                    </p>
-                    <!-- hidden on phones to keep the waiting line near the top of the screen -->
-                    <p class="canteen-tagline d-none d-sm-block">Big appetites. Small break time. Absolutely no cutting.</p>
-                </div>
-            </div>
+    <!-- ================= BACKGROUND SCENE (decoration only) ================= -->
+    <div id="scene" aria-hidden="true">
+        <div class="wall"></div>
+        <div class="wall-tiles"></div>
+        <div class="floor"></div>
+
+        <div class="menu-board">
+            <span class="menu-board-title">TODAY'S MENU</span>
+            <span class="menu-board-items" id="menu-board-items"></span>
+        </div>
+        <div class="window"><i></i><i></i></div>
+
+        <div class="door">
+            <span class="door-sign">ENTRANCE</span>
+        </div>
+
+        <img class="server" id="server-sprite" alt="">
+        <div class="counter">
+            <span class="counter-sign">SERVICE COUNTER</span>
+        </div>
+        <img class="counter-plate" id="counter-plate" alt="" hidden>
+    </div>
+
+    <!-- ================= WAITING LINE ================= -->
+    <!-- One .student element per customer in the queue, drawn in arrival order. -->
+    <section id="line-area" aria-label="Waiting line">
+        <div id="line"></div>
+        <span class="lane-tag tag-front" id="tag-front">&#9650; FRONT</span>
+        <span class="lane-tag tag-rear" id="tag-rear" hidden>&#9650; REAR</span>
+        <p id="waiting-empty" class="waiting-empty">The line is empty.</p>
+        <div id="float-layer" aria-hidden="true"></div>
+    </section>
+
+    <!-- ================= TOP BAR: progress and controls ================= -->
+    <header id="hud">
+        <span class="mode-badge">Mode: <strong id="mode-label">Normal</strong></span>
+
+        <div class="hud-pill" id="progress-section">
+            <span class="hud-stat">SERVED
+                <strong><span id="served-count">0</span>/<span id="served-target">10</span></strong>
+            </span>
+            <span class="hud-stat">WAITING
+                <strong><span id="waiting-count">0</span>/<span id="waiting-limit">6</span></strong>
+            </span>
+            <span class="hud-stat">WALK-OUTS
+                <strong><span id="angry-count">0</span>/<span id="angry-limit">3</span></strong>
+            </span>
+        </div>
+
+        <div class="hud-buttons">
+            <button type="button" class="px-btn px-btn-small px-btn-cream sound-toggle" aria-pressed="true">Sound: On</button>
+            <button type="button" class="px-btn px-btn-small px-btn-cream" id="restart-shift">Restart</button>
+            <button type="button" class="px-btn px-btn-small px-btn-cream" id="reset-game">Menu</button>
         </div>
     </header>
 
-    <main class="container">
-        <!-- Bootstrap grid: two columns on desktop (game on the left, controls on the right),
-             one column on phones (the controls become a bar at the bottom of the screen). -->
-        <div class="row g-4">
-
-            <div class="col-lg-8">
-                <div class="main-stack">
-
-                    <!-- 2. PROGRESS: waiting count, served count out of 10, success state -->
-                    <section id="progress-section" class="card canteen-card scoreboard" aria-labelledby="progress-heading">
-                        <div class="card-body">
-                            <!-- On phones this heading is hidden visually (screen readers still read it) to save space. -->
-                            <h2 id="progress-heading" class="section-title title-sm-up">Lunch Rush Progress</h2>
-                            <div class="row g-2 g-sm-3 align-items-center flex-nowrap">
-                                <div class="col-auto">
-                                    <div class="stat-tile">
-                                        <span class="stat-label">Waiting</span>
-                                        <span class="stat-value"><span id="waiting-count">0</span></span>
-                                    </div>
-                                </div>
-                                <div class="col-auto">
-                                    <div class="stat-tile">
-                                        <span class="stat-label">Served</span>
-                                        <span class="stat-value"><span id="served-count">0</span><span class="stat-target">/<span id="served-target">10</span></span></span>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div id="served-progress-track" class="progress" role="progressbar" aria-label="Students served" aria-valuenow="0" aria-valuemin="0" aria-valuemax="10" aria-valuetext="0 of 10 students served">
-                                        <div id="served-progress-bar" class="progress-bar" style="width: 0%"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <p id="progress-caption" class="progress-caption">Serve 10 students to finish the lunch rush.</p>
-                            <!-- Success state: only shown after 10 successful serves. -->
-                            <div id="success-banner" class="alert alert-success success-banner" hidden>
-                                <strong>Success!</strong> All 10 students are fed. The lunch rush is complete!
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- 3. WAITING LINE: cards in arrival order, Front on the left, Back on the right -->
-                    <section id="waiting-section" class="card canteen-card" aria-labelledby="waiting-line-heading">
-                        <div class="card-body">
-                            <div class="d-flex flex-wrap justify-content-between align-items-baseline column-gap-3 lane-title-row">
-                                <h2 id="waiting-line-heading" class="section-title">Waiting Line</h2>
-                                <p id="lane-hint" class="lane-hint" hidden>Scroll sideways to see more</p>
-                            </div>
-
-                            <!-- Shorter wording on phones so each caption fits on one line. -->
-                            <div class="lane-ends">
-                                <p class="lane-end lane-end-front"><span class="end-flag end-flag-front">Front</span> <span class="d-none d-sm-inline">students are </span>served here</p>
-                                <p class="lane-end lane-end-back"><span class="d-none d-sm-inline">new students </span>join here <span class="end-flag end-flag-back">Back</span></p>
-                            </div>
-
-                            <div class="lane-frame">
-                                <!-- tabindex lets keyboard users scroll a long line with the arrow keys -->
-                                <ol id="waiting-line" class="lane" aria-label="Students in arrival order, front of the line first" tabindex="0"></ol>
-                                <p id="waiting-empty" class="lane-empty">Suspiciously quiet. Everyone must still be copying the homework.</p>
-                            </div>
-                        </div>
-                    </section>
-
-                    <div class="row g-4">
-                        <!-- 4. NEXT STUDENT (PEEK): front of the line, not removed -->
-                        <div class="col-md-6">
-                            <section class="card canteen-card h-100" aria-labelledby="next-student-heading">
-                                <div class="card-body">
-                                    <h2 id="next-student-heading" class="section-title">Next Student (Peek)</h2>
-                                    <p class="explainer">Peek shows who is at the front <strong>without removing them</strong> from the line.</p>
-                                    <div class="peek-preview">
-                                        <div id="peek-placeholder" class="portrait-placeholder" aria-hidden="true">?</div>
-                                        <span id="peek-portrait" class="student-portrait" aria-hidden="true" hidden></span>
-                                        <p class="peek-name"><span class="small-label">Next student</span> <strong id="next-student">None</strong></p>
-                                        <p id="peek-dialogue" class="peek-dialogue speech-bubble bubble-up" hidden></p>
-                                    </div>
-                                </div>
-                            </section>
-                        </div>
-
-                        <!-- 5. SERVICE COUNTER: one standard meal and the last student served -->
-                        <div class="col-md-6">
-                            <section class="card canteen-card h-100" aria-labelledby="service-counter-heading">
-                                <div class="card-body">
-                                    <h2 id="service-counter-heading" class="section-title">Service Counter</h2>
-                                    <div class="counter-scene">
-                                        <img class="meal-mascot" src="assets/lunch-mascot.png" alt="" width="112" height="112">
-                                        <div>
-                                            <span class="menu-label">TODAY'S SPECIAL</span>
-                                            <p class="meal-name">Standard lunch meal</p>
-                                            <p class="canteen-aside">Rice, chicken, veggies. Extra motivation sold separately.</p>
-                                        </div>
-                                    </div>
-                                    <div class="last-served-row">
-                                        <div id="served-placeholder" class="portrait-placeholder portrait-placeholder-small" aria-hidden="true">🍽️</div>
-                                        <span id="served-portrait" class="student-portrait" aria-hidden="true" hidden></span>
-                                        <div class="last-served-text">
-                                            <p class="last-served-label"><span class="small-label">Last served</span> <strong id="last-served">None</strong></p>
-                                            <p id="served-joke" class="speech-bubble bubble-left">The tray is ready. The students? Debatable.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </section>
-                        </div>
-                    </div>
-
-                    <section id="lunch-section" class="card canteen-card" aria-labelledby="lunch-heading">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center gap-2">
-                                <h2 id="lunch-heading" class="section-title">Lunch Table</h2>
-                                <span class="badge rounded-pill text-bg-success"><span id="lunch-count">0</span> seated</span>
-                            </div>
-                            <p class="explainer">Already served, now enjoying lunch. No more queue drama.</p>
-                            <p id="lunch-empty" class="lunch-empty">The seats are ready. Serve the first student to start the lunch party!</p>
-                            <ol id="lunch-guests" class="lunch-table" aria-label="Served students eating lunch, in serving order" hidden></ol>
-                        </div>
-                    </section>
-                </div>
+    <!-- ================= PEEK: the front student, without removing them ================= -->
+    <aside id="peek-panel" class="px-panel" aria-label="Next student (peek)">
+        <h2 class="panel-title">NEXT STUDENT (PEEK)</h2>
+        <div class="peek-row d-flex align-items-center gap-2">
+            <span id="peek-portrait" class="student-portrait" hidden></span>
+            <span id="peek-placeholder" class="peek-placeholder">?</span>
+            <div class="peek-text">
+                <strong id="next-student">None</strong>
+                <span id="next-order">No order yet</span>
             </div>
+        </div>
+        <div class="patience-label">Patience</div>
+        <div class="patience-track" id="patience-track" role="progressbar"
+             aria-label="Front student patience" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="patience-bar" id="patience-bar"></div>
+        </div>
+    </aside>
 
-            <div class="col-lg-4">
-                <aside class="sidebar" aria-label="Game controls and sound">
+    <!-- ================= ORDER: what the front student is saying ================= -->
+    <section id="order-bubble" class="px-panel" aria-label="Current order">
+        <p id="order-text">Start a shift to open the counter.</p>
+    </section>
 
-                    <!-- 6. CONTROLS + FEEDBACK. On phones this section is pinned to the bottom of
-                         the screen so the buttons never scroll away from the waiting line. -->
-                    <section id="controls" class="card canteen-card controls-dock" aria-labelledby="controls-heading">
-                        <div class="card-body dock-inner">
-                            <h2 id="controls-heading" class="section-title d-none d-lg-block">Game Controls</h2>
-                            <h3 id="feedback-heading" class="visually-hidden">Feedback</h3>
-                            <p id="feedback-message" class="feedback" role="status" aria-labelledby="feedback-heading"></p>
+    <!-- ================= FEEDBACK: result of the last action ================= -->
+    <section id="feedback-panel" class="px-panel">
+        <h2 class="panel-title">COUNTER NOTES</h2>
+        <p id="feedback-message" role="status" aria-live="polite"></p>
+    </section>
 
-                            <div class="control-buttons">
-                                <button type="button" id="add-student" class="btn btn-success btn-lg">Add Student</button>
-                                <button type="button" id="serve-student" class="btn btn-success btn-lg">Serve Student</button>
-                                <button type="button" id="reset-game" class="btn btn-outline-success btn-lg">Reset</button>
-                            </div>
-                        </div>
-                    </section>
+    <!-- ================= FOOD BUTTONS: tap to serve the FRONT student ================= -->
+    <nav id="food-bar" aria-label="Food buttons"></nav>
 
-                    <!-- Character sounds -->
-                    <section class="card canteen-card sound-card" aria-labelledby="sound-heading">
-                        <div class="card-body character-sound-panel">
-                            <h2 id="sound-heading" class="section-title">Character Sounds</h2>
-                            <div class="form-check form-switch sound-toggle">
-                                <input class="form-check-input" type="checkbox" role="switch" id="sound-enabled" checked>
-                                <label class="form-check-label" for="sound-enabled">Hear the front student</label>
-                            </div>
-                            <audio id="character-audio" controls preload="none" aria-label="Character music player"></audio>
-                            <p id="sound-status" class="canteen-aside" role="status">The front student speaks when it is their turn.</p>
-                        </div>
-                    </section>
+    <!-- One hidden player: only the front student's voice clip plays. -->
+    <audio id="character-audio" preload="none"></audio>
 
-                </aside>
+    <!-- ================= SCREEN: main menu ================= -->
+    <section id="screen-menu" class="screen">
+        <div class="menu-corner menu-corner-left">
+            <button type="button" class="px-btn px-btn-cream" id="open-howto">How to Play</button>
+        </div>
+        <div class="menu-corner menu-corner-right">
+            <button type="button" class="px-btn px-btn-cream sound-toggle" aria-pressed="true">Sound: On</button>
+        </div>
+
+        <img class="menu-mascot" src="assets/lunch-mascot.png" alt="">
+        <h1 class="logo">
+            <span class="logo-small">Campus Canteen</span>
+            <span class="logo-big">Lunch Line!</span>
+        </h1>
+
+        <button type="button" class="px-btn px-btn-green px-btn-big" id="start-shift">Start Shift</button>
+
+        <div class="mode-row d-flex gap-3" role="group" aria-label="Difficulty">
+            <button type="button" class="px-btn px-btn-green mode-button" data-mode="easy" aria-pressed="false">Easy</button>
+            <button type="button" class="px-btn px-btn-gold mode-button" data-mode="normal" aria-pressed="true">Normal</button>
+            <button type="button" class="px-btn px-btn-red mode-button" data-mode="hard" aria-pressed="false">Hard</button>
+        </div>
+        <p class="mode-note" id="mode-note"></p>
+    </section>
+
+    <!-- ================= SCREEN: how to play ================= -->
+    <section id="screen-howto" class="screen screen-dim" hidden>
+        <div class="px-panel dialog">
+            <h2 class="dialog-title">How to Play</h2>
+            <ol class="howto-steps">
+                <li><strong>Start the shift.</strong> The canteen counter opens.</li>
+                <li><strong>Watch students walk in.</strong> They enter from the right (REAR) and line up toward the counter (FRONT). Each one shows the food they want.</li>
+                <li><strong>Serve the FRONT student only.</strong> Tap the matching food button. First in, first out: nobody behind them can be served first.</li>
+                <li><strong>Right food:</strong> +1 served and the line moves up. <strong>Wrong food:</strong> they stay, and their patience drops faster.</li>
+                <li><strong>Beat the patience bar.</strong> If it runs out, the student walks out angry.</li>
+                <li><strong>Win</strong> by serving 10 students. <strong>Lose</strong> after 3 walk-outs, or when a student arrives and the line is already full (6).</li>
+            </ol>
+            <p class="howto-keys">Tip: keys <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd> also press the food buttons.</p>
+            <button type="button" class="px-btn px-btn-green" id="howto-close">Got it</button>
+        </div>
+    </section>
+
+    <!-- ================= SCREEN: end of shift ================= -->
+    <section id="screen-end" class="screen screen-dim" hidden>
+        <div class="px-panel dialog dialog-end" id="end-dialog">
+            <h2 class="dialog-title" id="end-title">Shift complete!</h2>
+            <p id="end-reason"></p>
+            <ul class="end-stats list-unstyled">
+                <li>Served: <strong id="end-served">0/10</strong></li>
+                <li>Walk-outs: <strong id="end-angry">0/3</strong></li>
+                <li>Mode: <strong id="end-mode">Normal</strong></li>
+            </ul>
+            <div class="dialog-buttons d-flex gap-3 justify-content-center">
+                <button type="button" class="px-btn px-btn-green" id="play-again">Play again</button>
+                <button type="button" class="px-btn px-btn-cream" id="back-to-menu">Back to menu</button>
             </div>
-
         </div>
-    </main>
+    </section>
 
-    <footer class="canteen-footer">
-        <div class="container">
-            <p>CC104 Data Structures and Algorithms project by Jared, Eric, Fred, and Russ.</p>
-        </div>
-    </footer>
+</div>
+</main>
 </body>
 </html>

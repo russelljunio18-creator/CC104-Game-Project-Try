@@ -1,1050 +1,412 @@
 /* =====================================================================
-   Campus Canteen: Lunch Line  -  custom styles
-   Bootstrap (css/vendor) provides the grid, cards, buttons, badges,
-   progress bar and alert. This file adds the canteen theme on top.
+   Campus Canteen: Lunch Line - styles
 
-   Sections
-     1. Colors and base
-     2. Header
-     3. Cards and headings
-     4. Progress (scoreboard)
-     5. Waiting line (front / back)
-     6. Portraits and speech bubbles
-     7. Peek and Service Counter
-     8. Controls, feedback and sound
-     9. Footer
-    10. Animation (only when the player allows motion)
-    11. Desktop layout (wide screens)
+   The game is one fixed 960 x 540 stage (see #stage). Everything inside
+   is placed with pixel positions, and js/game.js scales the whole stage
+   to fit the window. Sections:
+     1. Colours and page      5. Students
+     2. Stage and scene       6. Food buttons
+     3. Buttons and panels    7. Screens (menu, how to play, end)
+     4. Top bar and panels    8. Animations
    ===================================================================== */
 
-
-/* ---------- 1. Colors and base ---------- */
+/* ---------- 1. Colours and page ---------- */
 :root {
-  --cream: #fcf6e6;        /* page background */
-  --paper: #fffdf7;        /* card background */
-  --line: #e2d7b8;         /* soft borders */
-  --navy: #142d4e;         /* headings */
-  --ink: #243247;          /* body text */
-  --muted: #4e6157;        /* small helper text */
-  --green: #176b3a;        /* primary buttons, FRONT */
-  --green-dark: #10512b;
-  --green-soft: #e4f2e7;
-  --pencil: #f2c230;       /* yellow highlighter accent */
-  --warn-bg: #fff1c9;
-  --warn-ink: #5c4300;
-  --warn-line: #d99a00;
-  --radius: 16px;
-  --dock-space: 150px;     /* room kept free for the bottom controls bar on phones */
+    --ink: #2b1b17;
+    --cream: #f6ead0;
+    --panel: #efe2c4;
+    --panel-dark: #cdb98f;
+    --wood: #b0703f;
+    --wood-dark: #7c4a26;
+    --wood-light: #cf9460;
+    --green: #3f8f4f;
+    --green-dark: #2a6537;
+    --gold: #d9a514;
+    --gold-dark: #9a7208;
+    --red: #b8402f;
+    --red-dark: #7e2618;
+    --maroon: #6d2f3f;
+    --navy: #1d2a4a;
+    --pixel-font: "Arial Black", "Trebuchet MS", Verdana, sans-serif;
 }
 
-* {
-  box-sizing: border-box;
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: #14161f;
 }
 
 body {
-  margin: 0;
-  background-color: var(--cream);
-  /* faint dots, like graph paper */
-  background-image: radial-gradient(rgba(20, 45, 78, 0.07) 1px, transparent 1px);
-  background-size: 22px 22px;
-  color: var(--ink);
-  font-family: "Trebuchet MS", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
-  line-height: 1.5;
-  /* phones: keep the last lines of the page from hiding behind the controls bar */
-  padding-bottom: var(--dock-space);
+    font-family: "Trebuchet MS", Verdana, sans-serif;
+    color: var(--ink);
+    -webkit-user-select: none;
+    user-select: none;
 }
 
-/* Stops the pinned controls bar from covering the thing a keyboard user just focused. */
-html {
-  scroll-padding-bottom: var(--dock-space);
-}
+[hidden] { display: none !important; }
 
-h1, h2, h3 {
-  color: var(--navy);
-  line-height: 1.2;
-}
-
-/* One clear focus style for everything you can tab to. */
-a:focus-visible,
-button:focus-visible,
-.btn:focus-visible,
-.lane:focus-visible,
-.form-check-input:focus-visible,
-audio:focus-visible {
-  outline: 3px solid var(--navy);
-  outline-offset: 3px;
-  box-shadow: 0 0 0 6px #ffffff;
-}
-
-.skip-link {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  z-index: 2000;
-  padding: 8px 14px;
-  background: #ffffff;
-  color: var(--navy);
-  border: 2px solid var(--navy);
-  border-radius: 8px;
-  font-weight: 700;
-}
-
-
-/* ---------- 2. Header ---------- */
-.canteen-header {
-  margin-bottom: 0.75rem;
-  background-color: var(--paper);
-  /* ruled notebook lines */
-  background-image: repeating-linear-gradient(transparent 0, transparent 31px, rgba(20, 45, 78, 0.09) 31px, rgba(20, 45, 78, 0.09) 32px);
-  border-bottom: 3px solid var(--navy);
-}
-
-/* green gingham strip, like a canteen tablecloth */
-.canteen-header::before {
-  content: "";
-  display: block;
-  height: 14px;
-  background-color: #ffffff;
-  background-image:
-    repeating-linear-gradient(0deg, rgba(23, 107, 58, 0.5) 0, rgba(23, 107, 58, 0.5) 7px, transparent 7px, transparent 14px),
-    repeating-linear-gradient(90deg, rgba(23, 107, 58, 0.5) 0, rgba(23, 107, 58, 0.5) 7px, transparent 7px, transparent 14px);
-  border-bottom: 2px solid var(--navy);
-}
-
-/* Phones: title + small mascot on one row, instructions underneath.
-   Wider screens: mascot sits on the right (see section 11). */
-.header-inner {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-areas:
-    "title mascot"
-    "copy  copy";
-  align-items: center;
-  gap: 0.4rem 1rem;
-  padding-block: 0.75rem;
-}
-
-.header-text {
-  grid-area: title;
-  min-width: 0;
-}
-
-.header-copy {
-  grid-area: copy;
-  min-width: 0;
-}
-
-.school-label {
-  display: inline-block;
-  margin: 0 0 6px;
-  padding: 0 6px;
-  background: linear-gradient(transparent 50%, var(--pencil) 50%); /* highlighter */
-  color: var(--navy);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.09em;
-}
-
-.canteen-header h1 {
-  margin: 0;
-  font-size: clamp(1.4rem, 0.9rem + 2.8vw, 2.7rem);
-  font-weight: 800;
-}
-
-.header-instructions {
-  margin-bottom: 0.4rem;
-  max-width: 60ch;
-  font-size: 0.88rem;
-}
-
-.canteen-tagline {
-  margin: 0;
-  color: var(--green);
-  font-weight: 700;
-}
-
-/* The mascot is a square picture, so width and height stay equal (no squashing). */
-.header-mascot {
-  grid-area: mascot;
-  width: 60px;
-  height: 60px;
-  object-fit: contain;
-  background-color: #f5f7f2;
-  border: 3px solid var(--navy);
-  border-radius: 18px;
-}
-
-
-/* ---------- 3. Cards and headings ---------- */
-/* The left column: cards stacked with a small gap on phones, a bigger one on larger screens. */
-.main-stack {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.canteen-card {
-  background-color: var(--paper);
-  border: 2px solid var(--line);
-  border-radius: var(--radius);
-  box-shadow: 0 3px 0 var(--line);
-}
-
-.canteen-card > .card-body {
-  padding: 0.75rem;
-}
-
-.section-title {
-  margin: 0 0 0.6rem;
-  font-size: 1.25rem;
-  font-weight: 800;
-}
-
-/* Heading that is only shown from tablet size up; screen readers always get it. */
-@media (max-width: 575.98px) {
-  .title-sm-up {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    padding: 0;
+/* ---------- 2. Stage and scene ---------- */
+#stage-wrap {
+    position: fixed;
+    inset: 0;
     overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
 }
 
-.explainer {
-  margin-bottom: 0.75rem;
-  color: var(--muted);
-  font-size: 0.92rem;
+#stage {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 960px;
+    height: 540px;
+    transform: translate(-50%, -50%);
+    overflow: hidden;
+    background: var(--cream);
+    outline: 4px solid var(--ink);
 }
 
-.canteen-aside {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.88rem;
+#scene, #line-area { position: absolute; inset: 0; }
+#scene img, .student-bubble img, .food-button img { image-rendering: pixelated; }
+
+.wall {
+    position: absolute; left: 0; top: 0; width: 960px; height: 300px;
+    background:
+        repeating-linear-gradient(90deg, rgba(43, 27, 23, .05) 0 4px, transparent 4px 64px),
+        #f3e1bb;
+}
+.wall-tiles {
+    position: absolute; left: 0; top: 300px; width: 960px; height: 64px;
+    background:
+        repeating-linear-gradient(90deg, var(--green-dark) 0 4px, transparent 4px 32px),
+        repeating-linear-gradient(0deg, var(--green-dark) 0 4px, transparent 4px 32px),
+        var(--green);
+    border-top: 4px solid var(--ink);
+    border-bottom: 4px solid var(--ink);
+}
+.floor {
+    position: absolute; left: 0; top: 364px; width: 960px; height: 176px;
+    background:
+        repeating-conic-gradient(#d9c7a0 0 25%, #c8b388 0 50%) 0 0 / 64px 64px;
 }
 
-.small-label {
-  display: block;
-  color: var(--muted);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+.menu-board {
+    position: absolute; left: 300px; top: 168px; width: 260px; height: 84px;
+    background: #24332b; border: 4px solid var(--wood-dark);
+    outline: 3px solid var(--ink);
+    text-align: center; color: #f4f1e8;
+}
+.menu-board-title {
+    display: block; margin-top: 4px;
+    font: 12px var(--pixel-font); letter-spacing: 2px;
+}
+.menu-board-items img { width: 40px; height: 40px; margin: 2px 6px 0; }
+
+.window {
+    position: absolute; left: 640px; top: 172px; width: 170px; height: 96px;
+    background: linear-gradient(#9fd6f2, #d8f0fb);
+    border: 6px solid var(--wood); outline: 3px solid var(--ink);
+}
+.window i { position: absolute; background: var(--wood); }
+.window i:first-child { left: 50%; top: 0; width: 6px; height: 100%; margin-left: -3px; }
+.window i:last-child { top: 50%; left: 0; height: 6px; width: 100%; margin-top: -3px; }
+
+.door {
+    position: absolute; left: 872px; top: 214px; width: 80px; height: 228px;
+    background: linear-gradient(90deg, #3a2a26 0 12px, #1b1411 12px);
+    border: 4px solid var(--ink); border-bottom: 0;
+}
+.door-sign {
+    position: absolute; left: -12px; top: -30px; width: 96px;
+    padding: 2px 0; text-align: center;
+    font: 10px var(--pixel-font); letter-spacing: 1px;
+    color: #fff; background: var(--navy); border: 3px solid var(--ink);
 }
 
+.server { position: absolute; left: 62px; top: 216px; width: 128px; height: 128px; }
+.counter {
+    position: absolute; left: 16px; top: 336px; width: 226px; height: 116px;
+    background:
+        repeating-linear-gradient(0deg, rgba(43, 27, 23, .18) 0 3px, transparent 3px 26px),
+        var(--wood);
+    border: 4px solid var(--ink);
+    box-shadow: inset 0 14px 0 var(--wood-light), inset 0 18px 0 var(--wood-dark);
+}
+.counter-sign {
+    position: absolute; left: 22px; top: 50px; width: 174px; padding: 4px 0;
+    text-align: center; font: 11px var(--pixel-font); letter-spacing: 1px;
+    color: var(--cream); background: var(--green-dark); border: 3px solid var(--ink);
+}
+.counter-plate { position: absolute; left: 168px; top: 286px; width: 56px; height: 56px; }
+.counter-plate.is-dropping { animation: plate-drop .35s steps(5) both; }
 
-/* ---------- 4. Progress (scoreboard) ---------- */
-/* Small on phones so the waiting line stays near the top (bigger sizes in section 11). */
-.stat-tile {
-  padding: 0.15rem 0.7rem;
-  background-color: var(--green-soft);
-  border: 2px solid var(--green);
-  border-radius: 12px;
-  text-align: center;
+/* ---------- 3. Buttons and panels ---------- */
+.px-btn {
+    font: 15px var(--pixel-font);
+    color: #fff;
+    text-shadow: 0 2px 0 rgba(43, 27, 23, .7);
+    padding: 8px 18px 12px;
+    border: 3px solid var(--ink);
+    border-radius: 9px;
+    background: var(--green);
+    box-shadow: inset 0 -6px 0 var(--green-dark), inset 0 3px 0 rgba(255, 255, 255, .35), 0 4px 0 var(--ink);
+    cursor: pointer;
+    transition: transform .06s;
+}
+.px-btn:hover:not(:disabled) { filter: brightness(1.08); }
+.px-btn:active:not(:disabled) { transform: translateY(3px); box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .3), 0 1px 0 var(--ink); }
+.px-btn:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.px-btn:disabled { filter: grayscale(.7) brightness(.85); cursor: default; }
+
+.px-btn-green { background: var(--green); box-shadow: inset 0 -6px 0 var(--green-dark), inset 0 3px 0 rgba(255, 255, 255, .35), 0 4px 0 var(--ink); }
+.px-btn-gold { background: var(--gold); box-shadow: inset 0 -6px 0 var(--gold-dark), inset 0 3px 0 rgba(255, 255, 255, .35), 0 4px 0 var(--ink); }
+.px-btn-red { background: var(--red); box-shadow: inset 0 -6px 0 var(--red-dark), inset 0 3px 0 rgba(255, 255, 255, .35), 0 4px 0 var(--ink); }
+.px-btn-cream {
+    background: #f4efe2; color: var(--ink); text-shadow: none;
+    box-shadow: inset 0 -6px 0 #cfc7b4, inset 0 3px 0 #fff, 0 4px 0 var(--ink);
+}
+.px-btn-small { font-size: 11px; padding: 5px 10px 9px; border-radius: 7px; }
+.px-btn-big { font-size: 26px; padding: 12px 44px 18px; }
+
+.px-panel {
+    background: var(--panel);
+    border: 3px solid var(--ink);
+    border-radius: 8px;
+    box-shadow: inset 0 0 0 3px #fbf4e2, 0 4px 0 rgba(43, 27, 23, .35);
+}
+.panel-title {
+    margin: 0 0 4px; font: 10px var(--pixel-font); letter-spacing: 1px; color: var(--maroon);
 }
 
-.stat-label {
-  display: block;
-  color: var(--green-dark);
-  font-size: 0.65rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+/* ---------- 4. Top bar and panels ---------- */
+#hud {
+    position: absolute; left: 0; top: 8px; width: 960px; height: 44px;
 }
-
-.stat-value {
-  display: block;
-  color: var(--navy);
-  font-size: 1.6rem;
-  font-weight: 800;
-  line-height: 1.1;
-  white-space: nowrap;
+.mode-badge {
+    position: absolute; left: 16px; top: 8px; padding: 4px 10px;
+    font: 11px var(--pixel-font); color: var(--cream);
+    background: var(--navy); border: 3px solid var(--ink); border-radius: 7px;
 }
-
-.stat-target {
-  color: var(--muted);
-  font-size: 1rem;
+.mode-badge strong { color: #ffd45c; }
+.hud-pill {
+    position: absolute; left: 248px; top: 0; width: 464px; height: 44px;
+    display: flex; align-items: center; justify-content: space-around;
+    background: #241a17; border: 3px solid var(--ink); border-radius: 12px;
+    box-shadow: inset 0 0 0 2px #4a3a34, 0 4px 0 rgba(43, 27, 23, .35);
 }
+.hud-stat { font: 11px var(--pixel-font); letter-spacing: 1px; color: #e9dcc0; }
+.hud-stat strong { margin-left: 6px; font-size: 18px; color: #ffd45c; }
+.hud-buttons { position: absolute; right: 12px; top: 4px; display: flex; gap: 6px; }
 
-/* Bootstrap's progress bar, recolored */
-.progress {
-  height: 1.2rem;
-  background-color: #ece3c8;
-  border: 2px solid var(--navy);
-  border-radius: 999px;
+#peek-panel { position: absolute; left: 16px; top: 62px; width: 226px; height: 140px; padding: 8px 10px; }
+.peek-row { display: flex; gap: 8px; align-items: center; }
+.peek-text { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
+.peek-text strong { font: 15px var(--pixel-font); }
+.peek-text span { font-size: 13px; }
+.peek-placeholder {
+    width: 58px; height: 58px; flex: none;
+    display: flex; align-items: center; justify-content: center;
+    font: 26px var(--pixel-font); color: var(--panel-dark);
+    border: 3px dashed var(--panel-dark);
 }
+#peek-portrait { width: 58px; height: 58px; flex: none; }
+.patience-label { margin-top: 6px; font: 10px var(--pixel-font); letter-spacing: 1px; }
+.patience-track { height: 14px; background: #fff; border: 3px solid var(--ink); }
+.patience-bar { height: 100%; width: 0; background: var(--green); }
+.patience-bar.is-low { background: var(--gold); }
+.patience-bar.is-annoyed { background: var(--red); }
 
-.progress-bar {
-  background-color: var(--green);
+#order-bubble {
+    position: absolute; left: 256px; top: 62px; width: 448px; height: 84px;
+    display: flex; align-items: center; padding: 8px 16px;
 }
-
-.progress-caption {
-  margin: 0.35rem 0 0;
-  color: var(--navy);
-  font-size: 0.88rem;
-  font-weight: 700;
+#order-bubble::after {
+    content: ""; position: absolute; left: 34px; bottom: -15px;
+    border: 8px solid transparent; border-top-color: var(--ink);
 }
+#order-text { margin: 0; font: 17px/1.3 var(--pixel-font); color: var(--maroon); }
+.order-food { color: #a8730a; }
 
-.success-banner {
-  margin: 1rem 0 0;
-  background-color: var(--green-soft);
-  color: var(--green-dark);
-  border: 2px solid var(--green);
-  border-radius: 14px;
-  font-size: 1.05rem;
-}
+#feedback-panel { position: absolute; left: 718px; top: 62px; width: 226px; height: 84px; padding: 8px 10px; }
+#feedback-message { margin: 0; font-size: 12.5px; line-height: 1.25; font-weight: bold; }
+#feedback-message.feedback-ok { color: var(--green-dark); }
+#feedback-message.feedback-warn { color: var(--red-dark); }
 
-/* The whole scoreboard turns green when the game is complete. */
-.scoreboard.is-complete {
-  background-color: #f1faf3;
-  border-color: var(--green);
-  box-shadow: 0 3px 0 var(--green);
-}
-
-
-/* ---------- 5. Waiting line (front / back) ---------- */
-.lane-title-row .section-title {
-  margin-bottom: 0.3rem;
-}
-
-.lane-ends {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 0.4rem;
-}
-
-.lane-end {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.85rem;
-  white-space: nowrap;
-}
-
-.lane-end-back {
-  text-align: right;
-}
-
-.end-flag {
-  display: inline-block;
-  padding: 1px 10px;
-  border-radius: 999px;
-  color: #ffffff;
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.end-flag-front { background-color: var(--green); }
-.end-flag-back  { background-color: var(--navy); }
-
-/* Green wall on the left = FRONT, navy wall on the right = BACK. */
-.lane-frame {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;   /* centers the empty-line message */
-  min-height: 160px;
-  background-color: #fffaf0;
-  border: 2px dashed var(--line);
-  border-left: 10px solid var(--green);
-  border-right: 10px solid var(--navy);
-  border-radius: 14px;
-}
-
-/* The line itself: one row of cards that scrolls sideways when it gets long. */
-.lane {
-  display: flex;
-  gap: 12px;
-  margin: 0;
-  padding: 18px 12px 10px;
-  list-style: none;
-  overflow-x: auto;
-  scroll-snap-type: x proximity;
-  scroll-padding-inline: 12px;   /* matches the lane padding so snapping lands on the true Front */
-  scrollbar-color: var(--green) var(--line);
-}
-
-.lane:empty {
-  display: none;
-}
-
-.lane-empty {
-  margin: 0;
-  padding: 2.4rem 1rem;
-  color: var(--muted);
-  font-weight: 700;
-  text-align: center;
-}
-
-.lane-hint {
-  margin: 0 0 0.3rem;
-  color: var(--green-dark);
-  font-size: 0.82rem;
-  font-weight: 700;
-}
-
-/* One student in the line (a Bootstrap card) */
-.student-card {
-  position: relative;
-  flex: 0 0 132px;
-  align-items: center;
-  padding: 18px 8px 10px;
-  background-color: #ffffff;
-  border: 2px solid var(--line);
-  border-radius: 14px;
-  text-align: center;
-  scroll-snap-align: start;
-}
-
-.student-card.is-front {
-  background-color: var(--green-soft);
-  border-color: var(--green);
-  box-shadow: 0 0 0 3px rgba(23, 107, 58, 0.2);
-}
-
-.student-card.is-back {
-  border-color: var(--navy);
-}
-
-/* FRONT / BACK tags sit on the top edge of the card */
-.position-tags {
-  position: absolute;
-  top: -13px;
-  left: 50%;
-  display: flex;
-  gap: 4px;
-  transform: translateX(-50%);
-  white-space: nowrap;
-}
-
-.position-tag {
-  font-size: 0.7rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.tag-front { background-color: var(--green); color: #ffffff; }
-.tag-back  { background-color: var(--navy);  color: #ffffff; }
-
-.student-card .student-portrait {
-  width: 84px;
-  height: 84px;
-  margin-bottom: 6px;
-}
-
-.student-details {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-width: 0;
-}
-
-.student-name {
-  color: var(--navy);
-  font-size: 1rem;
-  font-weight: 800;
-}
-
-.student-number {
-  margin: 2px 0 4px;
-  padding: 1px 9px;
-  background-color: var(--navy);
-  border-radius: 999px;
-  color: #ffffff;
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-
-.student-mood {
-  color: var(--ink);
-  font-size: 0.88rem;
-  font-weight: 600;
-  line-height: 1.3;
-  overflow-wrap: anywhere;
-}
-
-
-/* ---------- 6. Portraits and speech bubbles ---------- */
-/* Every portrait shows the WHOLE photo (contain), so nothing is stretched or cropped. */
+/* ---------- 5. Students ---------- */
+/* The photos are the group's own meme portraits; everything else is drawn in CSS. */
 .student-portrait {
-  display: inline-block;
-  flex: 0 0 auto;
-  background-color: #ffffff;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: contain;
-  border: 2px solid var(--line);
-  border-radius: 12px;
+    display: block;
+    background-color: #ddd; background-size: cover; background-position: center;
+    border: 3px solid var(--ink);
 }
-
-/* portrait-0 ... portrait-4 match the five characters (see js/game.js). */
 .portrait-0 { background-image: url('../assets/member-1-reden.png'); }
 .portrait-1 { background-image: url('../assets/member-2-meme.jpg'); }
 .portrait-2 { background-image: url('../assets/member-3-meme.png'); }
 .portrait-3 { background-image: url('../assets/member-4-meme.png'); }
 .portrait-4 { background-image: url('../assets/member-5-meme.png'); }
 
-/* Dashed empty frame shown before anyone is there */
-.portrait-placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #fffaf0;
-  border: 3px dashed var(--line);
-  border-radius: 12px;
-  color: var(--muted);
-  font-size: 3.5rem;
-  font-weight: 800;
+.student {
+    position: absolute; top: 288px; width: 84px; height: 156px;
+    transition: left .6s linear;
+}
+.student > * { position: absolute; left: 50%; }
+.student-bubble {
+    top: 0; width: 46px; height: 42px; margin-left: -23px;
+    background: #fff; border: 3px solid var(--ink); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+}
+.student-bubble::after {
+    content: ""; position: absolute; bottom: -10px; left: 16px;
+    border: 5px solid transparent; border-top-color: var(--ink);
+}
+.student-bubble img { width: 32px; height: 32px; }
+.student-head { top: 50px; width: 52px; height: 52px; margin-left: -26px; z-index: 1; }
+.student-body {
+    top: 99px; width: 44px; height: 38px; margin-left: -22px;
+    background: #f4f1e8; border: 3px solid var(--ink);
+    box-shadow: -9px 4px 0 -3px var(--ink), 9px 4px 0 -3px var(--ink);
+    text-align: center;
+}
+.body-0 { background: #f4f1e8; }
+.body-1 { background: #8fb8e0; }
+.body-2 { background: #f0c75e; }
+.body-3 { background: #9fd3a4; }
+.body-4 { background: #f2a7b5; }
+.student-number {
+    display: inline-block; margin-top: 5px; padding: 0 4px;
+    font: 11px var(--pixel-font); color: #fff; background: var(--navy);
+}
+.student-legs { top: 134px; width: 30px; height: 20px; margin-left: -15px; }
+.student-legs i { position: absolute; top: 0; width: 11px; height: 20px; background: var(--navy); border: 3px solid var(--ink); }
+.student-legs i:first-child { left: 0; }
+.student-legs i:last-child { right: 0; }
+.student-emote { top: 28px; margin-left: 22px; font-size: 20px; z-index: 2; opacity: 0; }
+
+.student.is-walking .student-legs i:first-child { animation: step .3s steps(2) infinite; }
+.student.is-walking .student-legs i:last-child { animation: step .3s steps(2) infinite reverse; }
+.student.is-walking .student-head, .student.is-walking .student-body { animation: bob .3s steps(2) infinite; }
+.student.is-front .student-bubble { background: #fff3c4; transform: scale(1.15); transform-origin: bottom center; }
+.student.is-annoyed .student-bubble { background: #ffd7cf; animation: shake .4s steps(4) infinite; }
+.student.is-leaving { transition: none; }
+.student.is-leaving .student-emote { opacity: 1; }
+.student.is-leaving .student-bubble { visibility: hidden; }
+.student.is-happy { animation: leave-happy 1s steps(12) forwards; }
+.student.is-angry { animation: leave-angry 1s steps(12) forwards; }
+
+.lane-tag {
+    position: absolute; top: 446px; width: 84px; text-align: center;
+    font: 10px var(--pixel-font); letter-spacing: 1px; color: #fff;
+    border: 3px solid var(--ink); border-radius: 6px;
+    transition: left .6s linear;
+}
+.tag-front { left: 262px; background: var(--green-dark); }
+.tag-rear { background: var(--navy); }
+.waiting-empty {
+    position: absolute; left: 262px; top: 390px; margin: 0; padding: 4px 10px;
+    font: 12px var(--pixel-font); color: var(--ink);
+    background: rgba(255, 255, 255, .7); border: 3px dashed var(--ink);
 }
 
-.speech-bubble {
-  position: relative;
-  margin: 0;
-  padding: 10px 14px;
-  background-color: #ffffff;
-  border: 2px solid var(--navy);
-  border-radius: 14px;
-  color: var(--navy);
-  font-size: 1.05rem;
-  font-weight: 700;
-  overflow-wrap: anywhere;
+#float-layer { position: absolute; left: 150px; top: 250px; width: 200px; height: 0; }
+.float-text {
+    position: absolute; left: 0; top: 0; white-space: nowrap;
+    font: 26px var(--pixel-font); color: #fff;
+    -webkit-text-stroke: 6px var(--ink); paint-order: stroke fill;
+    animation: float-up 1s steps(10) forwards;
+}
+.float-good { color: #8be28f; }
+.float-bad { color: #ff8d7a; }
+
+/* ---------- 6. Food buttons ---------- */
+#food-bar {
+    position: absolute; left: 0; top: 470px; width: 960px; height: 70px;
+    display: flex; justify-content: center; gap: 12px; padding: 4px 12px 0;
+    background: rgba(36, 26, 23, .88); border-top: 4px solid var(--ink);
+}
+.food-button {
+    display: flex; align-items: center; gap: 8px;
+    width: 222px; height: 54px; padding: 2px 10px 8px;
+    background: #f4efe2; color: var(--ink); text-shadow: none; font-size: 14px; text-align: left;
+    box-shadow: inset 0 -6px 0 #cfc7b4, inset 0 3px 0 #fff, 0 4px 0 var(--ink);
+}
+.food-button img { width: 40px; height: 40px; flex: none; }
+.food-button-name { flex: 1; line-height: 1.1; }
+.food-button kbd { background: var(--ink); color: #fff; font-size: 11px; padding: 1px 6px; border-radius: 4px; }
+
+/* ---------- 7. Screens (menu, how to play, end) ---------- */
+.screen {
+    position: absolute; inset: 0; z-index: 20;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: rgba(20, 16, 22, .78);
+}
+.menu-corner { position: absolute; top: 16px; }
+.menu-corner-left { left: 16px; }
+.menu-corner-right { right: 16px; }
+.menu-mascot {
+    position: absolute; left: 96px; top: 168px; width: 132px; height: 132px;
+    object-fit: cover; background: #fff;
+    border: 4px solid var(--ink); border-radius: 12px; box-shadow: 0 6px 0 var(--ink);
+    rotate: -6deg; animation: bob 1.2s steps(2) infinite;
+}
+.logo { margin: 0 0 18px; text-align: center; line-height: 1; transform: rotate(-3deg); }
+.logo-small {
+    display: block; font: 24px var(--pixel-font); color: #ffd45c; letter-spacing: 2px;
+    -webkit-text-stroke: 7px var(--ink); paint-order: stroke fill;
+}
+.logo-big {
+    display: block; margin-top: 6px; font: 78px var(--pixel-font); color: var(--maroon);
+    -webkit-text-stroke: 14px #fff; paint-order: stroke fill;
+    filter: drop-shadow(0 6px 0 var(--ink));
+}
+.mode-row { display: flex; gap: 12px; margin-top: 18px; }
+.mode-button { min-width: 120px; opacity: .6; }
+.mode-button[aria-pressed="true"] { opacity: 1; outline: 4px solid #fff; outline-offset: 2px; }
+.mode-note { margin: 12px 0 0; font: 12px var(--pixel-font); color: #f4efe2; }
+
+.dialog { width: 600px; padding: 18px 26px 22px; text-align: center; }
+.dialog-title { margin: 0 0 10px; font: 26px var(--pixel-font); color: var(--maroon); }
+.howto-steps { margin: 0 0 8px; padding-left: 22px; text-align: left; font-size: 14px; line-height: 1.35; }
+.howto-steps li { margin-bottom: 4px; }
+.howto-keys { margin: 0 0 12px; font-size: 13px; }
+.howto-keys kbd { background: var(--ink); }
+
+.dialog-end { width: 460px; }
+.dialog-end.is-won .dialog-title { color: var(--green-dark); }
+.dialog-end.is-lost .dialog-title { color: var(--red-dark); }
+#end-reason { margin: 0 0 10px; font-size: 15px; font-weight: bold; }
+.end-stats { list-style: none; margin: 0 0 16px; padding: 0; font: 15px var(--pixel-font); }
+.end-stats li { margin-bottom: 2px; }
+.dialog-buttons { display: flex; gap: 12px; justify-content: center; }
+
+/* ---------- 8. Animations ---------- */
+@keyframes step { from { height: 20px; } to { height: 13px; } }
+@keyframes bob { from { transform: translateY(0); } to { transform: translateY(-3px); } }
+@keyframes shake {
+    0%, 100% { transform: translateX(0) scale(1.15); }
+    25% { transform: translateX(-3px) scale(1.15); }
+    75% { transform: translateX(3px) scale(1.15); }
+}
+@keyframes leave-happy {
+    0% { transform: translateY(0); opacity: 1; }
+    20% { transform: translateY(-18px); }
+    40% { transform: translateY(0); opacity: 1; }
+    100% { transform: translate(-30px, 70px); opacity: 0; }
+}
+@keyframes leave-angry {
+    0%, 20%, 40% { transform: translateX(-4px); opacity: 1; }
+    10%, 30% { transform: translateX(4px); }
+    100% { transform: translate(40px, 70px); opacity: 0; }
+}
+@keyframes float-up {
+    from { transform: translateY(0); opacity: 1; }
+    to { transform: translateY(-60px); opacity: 0; }
+}
+@keyframes plate-drop {
+    from { transform: translateY(-40px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
-/* the little pointer on the bubble */
-.speech-bubble::before {
-  content: "";
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  background-color: #ffffff;
+/* People who ask their device for less motion get instant moves instead. */
+@media (prefers-reduced-motion: reduce) {
+    .student, .lane-tag { transition: none; }
+    .student.is-walking *, .menu-mascot, .student.is-annoyed .student-bubble { animation: none !important; }
 }
-
-.bubble-up::before {
-  top: -9px;
-  left: calc(50% - 7px);
-  border-top: 2px solid var(--navy);
-  border-left: 2px solid var(--navy);
-  transform: rotate(45deg);
-}
-
-.bubble-left::before {
-  top: 14px;
-  left: -9px;
-  border-bottom: 2px solid var(--navy);
-  border-left: 2px solid var(--navy);
-  transform: rotate(45deg);
-}
-
-
-/* ---------- 7. Peek and Service Counter ---------- */
-.peek-preview {
-  text-align: center;
-}
-
-/* Large picture; it is a square box and the photo fits inside it. */
-#peek-portrait,
-#peek-placeholder {
-  display: block;
-  width: min(100%, 240px);
-  height: auto;
-  aspect-ratio: 1 / 1;
-  margin: 0 auto 0.75rem;
-}
-
-.peek-name {
-  margin-bottom: 0.9rem;
-}
-
-.peek-name strong {
-  display: block;
-  color: var(--navy);
-  font-size: 1.5rem;
-  font-weight: 800;
-  line-height: 1.2;
-}
-
-/* Bigger bubble text so a lone emoji (Reden) is easy to see. */
-.peek-dialogue {
-  font-size: 1.35rem;
-  text-align: center;
-}
-
-.counter-scene,
-.last-served-row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.counter-scene {
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px dashed var(--line);
-}
-
-.counter-scene > div,
-.last-served-text {
-  flex: 1;
-  min-width: 0;
-}
-
-.meal-mascot {
-  flex: 0 0 auto;
-  width: 88px;
-  height: 88px;
-  object-fit: contain;
-  background-color: #f5f7f2;
-  border: 2px solid var(--line);
-  border-radius: 18px;
-}
-
-.menu-label {
-  color: var(--green);
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.09em;
-}
-
-.meal-name {
-  margin: 2px 0;
-  color: var(--navy);
-  font-weight: 800;
-}
-
-.last-served-row {
-  align-items: flex-start;
-}
-
-.last-served-row .student-portrait,
-.portrait-placeholder-small {
-  width: 96px;
-  height: 96px;
-  flex: 0 0 96px;
-}
-
-.portrait-placeholder-small {
-  font-size: 2.2rem;
-}
-
-.last-served-label {
-  margin-bottom: 0.7rem;
-}
-
-.last-served-label strong {
-  display: block;
-  color: var(--navy);
-  font-size: 1.2rem;
-  font-weight: 800;
-}
-
-
-/* ---------- 8. Controls, feedback and sound ---------- */
-/* Feedback message: neutral by default, green after good actions, amber for invalid ones. */
-.feedback {
-  display: flex;
-  align-items: center;
-  min-height: 2.7rem;
-  margin: 0 0 0.5rem;
-  padding: 0.4rem 0.75rem;
-  background-color: #eaf0f7;
-  border-left: 6px solid var(--navy);
-  border-radius: 10px;
-  color: var(--navy);
-  font-size: 0.97rem;
-  font-weight: 600;
-  overflow-wrap: anywhere;
-}
-
-/* Hint shown while nothing has happened yet (the message box itself is empty). */
-.feedback:empty::before {
-  content: "Select Add Student to start the lunch line.";
-  color: var(--muted);
-  font-weight: 400;
-}
-
-.feedback.feedback-ok {
-  background-color: var(--green-soft);
-  border-left-color: var(--green);
-  color: var(--green-dark);
-}
-
-.feedback.feedback-warn {
-  background-color: var(--warn-bg);
-  border-left-color: var(--warn-line);
-  color: var(--warn-ink);
-}
-
-.feedback.feedback-warn::before {
-  content: "\26A0\FE0F\00A0";
-}
-
-#feedback-message.game-complete {
-  background-color: var(--green-soft);
-  border-left-color: var(--green);
-  color: var(--green-dark);
-  font-weight: 800;
-}
-
-/* Buttons: Bootstrap's .btn-success recolored to the canteen green */
-.btn-success {
-  --bs-btn-bg: var(--green);
-  --bs-btn-border-color: var(--green);
-  --bs-btn-hover-bg: var(--green-dark);
-  --bs-btn-hover-border-color: var(--green-dark);
-  --bs-btn-active-bg: #0d4425;
-  --bs-btn-active-border-color: #0d4425;
-  --bs-btn-disabled-bg: #5f7d6b;
-  --bs-btn-disabled-border-color: #5f7d6b;
-}
-
-.btn-outline-success {
-  --bs-btn-color: var(--green);
-  --bs-btn-border-color: var(--green);
-  --bs-btn-hover-bg: var(--green);
-  --bs-btn-hover-border-color: var(--green);
-  --bs-btn-active-bg: var(--green-dark);
-  --bs-btn-active-border-color: var(--green-dark);
-}
-
-/* Phone size first: slightly smaller text so "Serve Student" fits on one line. */
-.control-buttons .btn {
-  min-height: 2.9rem;
-  font-size: 0.9rem;
-  font-weight: 800;
-}
-
-.btn:disabled {
-  cursor: not-allowed;
-}
-
-/* PHONES: Add / Serve / Reset sit in one row and the whole bar is pinned to the bottom. */
-.control-buttons {
-  display: flex;
-  gap: 8px;
-}
-
-.control-buttons .btn {
-  flex: 1 1 0;
-  padding-inline: 4px;
-}
-
-.control-buttons #reset-game {
-  flex: 0 0 auto;
-  padding-inline: 12px;
-}
-
-.controls-dock {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 1030;
-  border-width: 3px 0 0;
-  border-color: var(--navy);
-  border-radius: 18px 18px 0 0;
-  box-shadow: 0 -6px 18px rgba(20, 45, 78, 0.2);
-}
-
-.controls-dock > .card-body {
-  padding: 0.6rem 0.75rem calc(0.6rem + env(safe-area-inset-bottom));
-}
-
-/* width: 100% matters: inside a Bootstrap card (a flex column) an auto margin would
-   otherwise shrink this box to fit the feedback text. */
-.dock-inner {
-  width: 100%;
-  max-width: 640px;
-  margin-inline: auto;
-}
-
-/* Bootstrap switch, laid out as: [switch] label */
-.sound-toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  margin-bottom: 0.75rem;
-  padding-left: 0;
-  font-weight: 600;
-}
-
-.sound-toggle .form-check-input {
-  flex: 0 0 auto;
-  float: none;
-  width: 2.8em;
-  height: 1.5em;
-  margin: 0;
-  cursor: pointer;
-}
-
-.sound-toggle .form-check-input:checked {
-  background-color: var(--green);
-  border-color: var(--green);
-}
-
-/* Replace Bootstrap's blue focus color with the navy focus ring used everywhere else. */
-.sound-toggle .form-check-input:focus {
-  border-color: var(--navy);
-  box-shadow: 0 0 0 3px #ffffff, 0 0 0 6px var(--navy);
-}
-
-.sound-toggle .form-check-input:focus:not(:checked) {
-  --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23142d4e'/%3e%3c/svg%3e");
-}
-
-.sound-toggle .form-check-label {
-  cursor: pointer;
-}
-
-#character-audio {
-  display: block;
-  width: 100%;
-  max-width: 100%;
-  margin-bottom: 0.5rem;
-}
-
-.sound-card {
-  margin-top: 1.5rem;
-}
-
-
-/* ---------- 9. Footer ---------- */
-.canteen-footer {
-  margin-top: 1.5rem;
-  color: var(--muted);
-  font-size: 0.85rem;
-  text-align: center;
-}
-
-.canteen-footer p {
-  margin: 0;
-}
-
-
-/* ---------- 10. Animation (skipped for people who ask for reduced motion) ---------- */
-@media (prefers-reduced-motion: no-preference) {
-  .student-card.is-new {
-    animation: card-pop 0.4s ease-out;
-  }
-
-  .success-banner:not([hidden]) {
-    animation: card-pop 0.5s ease-out;
-  }
-
-  .progress-bar {
-    transition: width 0.4s ease;
-  }
-
-  @keyframes card-pop {
-    from { opacity: 0; transform: translateY(12px) scale(0.85); }
-    to   { opacity: 1; transform: none; }
-  }
-}
-
-
-/* ---------- 11. Screen sizes ---------- */
-/* Very narrow phones (about 320px wide): a little smaller text so nothing wraps awkwardly. */
-@media (max-width: 359.98px) {
-  .canteen-header h1 {
-    font-size: 1.3rem;
-  }
-
-  .header-instructions {
-    font-size: 0.82rem;
-  }
-
-  .control-buttons .btn {
-    font-size: 0.8rem;
-  }
-
-  .control-buttons #reset-game {
-    padding-inline: 8px;
-  }
-}
-
-/* Tablets and phones in landscape: a pinned bar would hide too much, so let it scroll normally. */
-@media (max-width: 991.98px) and (max-height: 520px) {
-  body {
-    padding-bottom: 1rem;
-  }
-
-  html {
-    scroll-padding-bottom: 0;
-  }
-
-  .controls-dock {
-    position: static;
-    border-width: 2px;
-    border-radius: var(--radius);
-    box-shadow: 0 3px 0 var(--line);
-  }
-}
-
-@media (min-width: 576px) {
-  .canteen-header {
-    margin-bottom: 1.5rem;
-  }
-
-  .main-stack {
-    gap: 1.5rem;
-  }
-
-  .control-buttons .btn {
-    padding-inline: 6px;
-    font-size: 1rem;
-  }
-
-  /* Header: mascot on the right, spanning the title and the instructions */
-  .header-inner {
-    grid-template-areas:
-      "title mascot"
-      "copy  mascot";
-    padding-block: 1.1rem;
-  }
-
-  .header-instructions {
-    font-size: 1rem;
-  }
-
-  .header-mascot {
-    width: 120px;
-    height: 120px;
-    border-radius: 22px;
-  }
-
-  .canteen-card > .card-body {
-    padding: 1.25rem;
-  }
-
-  .stat-tile {
-    padding: 0.4rem 1rem;
-    border-radius: 14px;
-  }
-
-  .stat-label {
-    font-size: 0.75rem;
-  }
-
-  .stat-value {
-    font-size: 2.2rem;
-  }
-
-  .stat-target {
-    font-size: 1.2rem;
-  }
-
-  .progress {
-    height: 1.5rem;
-  }
-
-  .progress-caption {
-    font-size: 0.92rem;
-  }
-
-  .lane {
-    gap: 14px;
-    padding: 24px 14px 14px;
-  }
-
-  .student-card {
-    flex-basis: 160px;
-    padding: 20px 10px 12px;
-  }
-
-  .student-card .student-portrait {
-    width: 104px;
-    height: 104px;
-    margin-bottom: 8px;
-  }
-
-  .student-name {
-    font-size: 1.1rem;
-  }
-
-  .student-number {
-    font-size: 0.8rem;
-  }
-
-  .student-mood {
-    font-size: 0.95rem;
-  }
-
-  .feedback {
-    min-height: 3.4rem;
-    padding: 0.6rem 0.85rem;
-  }
-
-  .control-buttons .btn {
-    min-height: 3.1rem;
-  }
-}
-
-/* Desktop: the controls become a normal card in a sticky right-hand column. */
-@media (min-width: 992px) {
-  body {
-    padding-bottom: 1.5rem;
-  }
-
-  html {
-    scroll-padding-bottom: 0;
-  }
-
-  .sidebar {
-    position: sticky;
-    top: 1rem;
-  }
-
-  .controls-dock {
-    position: static;
-    border-width: 2px;
-    border-color: var(--line);
-    border-radius: var(--radius);
-    box-shadow: 0 3px 0 var(--line);
-  }
-
-  .controls-dock > .card-body {
-    padding: 1.25rem;
-  }
-
-  .dock-inner {
-    max-width: none;
-  }
-
-  .control-buttons {
-    flex-direction: column;
-  }
-
-  .control-buttons .btn,
-  .control-buttons #reset-game {
-    flex: 0 0 auto;
-    padding-inline: 1rem;
-  }
-
-
-  .control-buttons .btn {
-    min-height: 3.4rem;
-    font-size: 1.15rem;
-  }
-
-  .sound-card {
-    margin-top: 1.5rem;
-  }
-}
-
-/* Served students gather around a shared cafeteria table. */
-.lunch-table { list-style: none; padding: 18px; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); gap: 16px; background: repeating-linear-gradient(0deg, #e9ddbc 0px, #e9ddbc 29px, #dfd0a8 30px, #e9ddbc 31px); border: 3px solid #c5b182; border-radius: 18px; box-shadow: 0 6px 0 #b6a178; }
-.lunch-table[hidden] { display: none; }
-.lunch-seat { min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; background: #fffdf6; border: 2px solid #e4d6b1; border-radius: 14px; padding: 12px 8px; }
-.lunch-seat .student-portrait { width: 82px; height: 82px; flex-basis: auto; background-size: contain; animation: lunch-nibble 2.2s ease-in-out infinite; }
-.lunch-seat:nth-child(even) .student-portrait { animation-delay: -.8s; }
-.lunch-guest-name { font-size: .95rem; color: #142d4e; }
-.lunch-plate { display: block; font-size: 1.8rem; border-bottom: 3px solid #176b3a; border-radius: 50%; padding: 0 10px; }
-.lunch-status { color: #176b3a; font-size: .75rem; font-weight: 700; }
-.lunch-empty { padding: 22px; background: #f6efdd; border: 2px dashed #c5b182; border-radius: 12px; margin: 0; }
-@keyframes lunch-nibble { 0%, 100% { transform: rotate(-2deg); } 50% { transform: translateY(2px) rotate(2deg); } }
-@media (prefers-reduced-motion: reduce) { .lunch-seat .student-portrait { animation: none; } }
-@media (max-width: 575px) { .lunch-table { padding: 10px; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); } .lunch-guest-name { font-size: .85rem; } }

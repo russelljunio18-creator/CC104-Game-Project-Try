@@ -1,122 +1,179 @@
 # Campus Canteen: Lunch Line
 
-A simple CC104 Data Structures and Algorithms browser game. Add numbered students to the back of a lunch queue and serve them from the front. Serve 10 students to finish the lunch rush.
+A CC104 Data Structures and Algorithms browser game (Project 4, Customer Queue Challenge). Students walk into the canteen and line up. You run the counter: serve the student at the FRONT of the line the food they ordered, before their patience runs out. Serve 10 students to complete the shift.
+
+The waiting line is a **queue**. Students join at the REAR (enqueue), only the FRONT student can be served or leave (dequeue), and the NEXT STUDENT panel shows who is at the front without removing them (peek). First in, first out (FIFO).
 
 ## Team
 
 Jared, Eric, Fred, and Russ.
 
-Reported development contributions: Jared built the HTML and Add Student integration; Eric styled the interface and integrated local libraries; Fred implemented initialization and enqueue; Russ implemented dequeue. Final Serve integration, Reset, completion feedback, automated checks, and documentation were completed with AI assistance. Each member must review and understand the final code; this record does not claim they have reviewed those final additions yet.
+The first version of this project (manual Add Student and Serve Student buttons) was built by the team: Jared built the HTML and Add Student integration; Eric styled the interface and integrated the local libraries; Fred implemented initialization and enqueue; Russ implemented dequeue. This version, the "shift" redesign with walking students, food orders, patience, modes, and the new screens, was planned by the team and written with AI assistance. Each member must read and understand the final code before the demonstration; this record does not claim they have done so yet.
 
 ## Run offline
 
-Download or clone the entire repository. If downloaded as a ZIP, extract it first. Open `index.html` in a modern browser. No server, Node.js, installation, account, or internet connection is needed to play. Keep the `css` and `js` folders beside `index.html`.
+Download or clone the entire repository. If downloaded as a ZIP, extract it first. Open `index.html` in a modern browser. No server, Node.js, installation, account, or internet connection is needed. Keep the `css`, `js`, and `assets` folders beside `index.html`.
 
-Bootstrap CSS and jQuery are included locally with license files in their vendor folders. Refreshing the page starts a new game; progress is not saved.
+Bootstrap CSS and jQuery are included locally with license files in their vendor folders. Refreshing the page returns to the main menu; progress is not saved.
+
+The game is one landscape screen that scales to fit the window. On a phone, hold it sideways.
 
 ## How to play
 
-1. Select **Add Student** to append the next numbered student to the back.
-2. Read **Next Student (Peek)** to see a large picture, name, queue number, and dialogue for the front student without removing them. The preview clears when the queue is empty or the game is reset.
-3. Select **Serve Student** to remove the front student and update **Last served**.
-4. Continue until **Served: 10/10**. Add and Serve are then disabled. Any remaining waiting students stay visible until reset.
-5. Select **Reset** to clear the queue, counters, last-served display, and feedback, and restart numbering at 1.
+1. On the menu, pick **Easy**, **Normal**, or **Hard**, then select **Start Shift**. The first time, a How to Play panel appears; select **Start Shift** on it to begin.
+2. Students walk in from the ENTRANCE on the right (the REAR) and line up toward the SERVICE COUNTER on the left (the FRONT). Each student has a number tag and a bubble showing the food they want.
+3. Serve **only the FRONT student**: tap the matching food button at the bottom, or press <kbd>1</kbd>-<kbd>4</kbd>.
+   - **Right food:** the student leaves happy, Served goes up by 1, and everyone behind walks forward one place.
+   - **Wrong food:** you get a warning, the student stays at the counter, and their patience drains faster.
+   - You cannot serve anyone further back, even if you know what they want.
+4. The front student has a **patience bar**. If it reaches zero, they walk out angry.
+5. The shift ends in one of three ways:
+   - **Shift complete (win):** 10 students served.
+   - **Shift over (lose):** 3 students walked out.
+   - **Shift over (lose):** a student arrives while the line already holds 6.
+6. **Restart** starts the shift again in the same mode. **Menu** resets everything and returns to the menu. The end screen offers **Play again** and **Back to menu**.
 
-Serving an empty queue shows a message and changes no data. There is one standard meal, no priority ordering, and no timer.
+Tapping a food button when nobody is waiting shows "No students waiting. Nobody to serve yet." and changes no data.
 
-## Interface layout (redesign)
+### Modes
+
+| Mode | A student arrives every | Front student's patience | After a wrong food, patience drains |
+| --- | --- | --- | --- |
+| Easy | 4 s | 14 s | 1.5 times faster |
+| Normal | 3 s | 10 s | 2 times faster |
+| Hard | 2 s | 7 s | 2.5 times faster |
+
+In every mode the first three students arrive 0.8 s apart so a line forms right away, and handing over a meal keeps the counter busy for 1.2 s.
+
+## Screen layout
 
 | Area | What it shows |
 | --- | --- |
-| Header | Title, FIFO instructions, rice mascot |
-| Lunch Rush Progress | Waiting count, Served x/10, progress bar, green success banner at 10 |
-| Waiting Line | Cards in arrival order. Left wall and **FRONT** tag are green; right wall and **BACK** tag are navy. A one-student line shows both tags. Long lines scroll sideways inside the box. |
-| Next Student (Peek) | Large picture, name, number, dialogue; says peek does not remove anyone |
-| Service Counter | The standard meal and the last served student, with an empty state before the first serve |
-| Game Controls | Feedback message plus Add, Serve, Reset. Green = success, amber = invalid action. |
-| Character Sounds | On/off switch, audio player, status line |
+| Top bar | Mode, Served x/10, Waiting x/6, Walk-outs x/3, and the Sound, Restart, and Menu buttons |
+| Next Student (Peek) | Photo, name, queue number, order, and patience bar of the front student, without removing them |
+| Order bubble | What the front student is saying |
+| Counter Notes | Feedback for the last action. Green = success, red = warning. |
+| Scene | Service counter on the left, entrance on the right, students in arrival order between them, with FRONT and REAR tags under the line |
+| Food buttons | The four foods. Disabled while a meal is being handed over and when no shift is open. |
+| Screens | Main menu, How to Play, and the end-of-shift result |
 
-On desktop the controls sit in a sticky right-hand column. On phones the controls become a bar pinned to the bottom of the screen, so the buttons and the waiting line are visible together. Only the display code (`updateDisplay` and helpers in `js/game.js`) was redesigned; the queue functions and element IDs are unchanged.
+## Minimum required features (Project 4)
+
+| Requirement | Where it is in the game |
+| --- | --- |
+| 1. Display a waiting line and service counter | The scene: students between the counter and the entrance |
+| 2. Add customers with unique queue numbers | Each arrival is enqueued with the next number (#1, #2, ...) on their shirt |
+| 3. Display the queue in arrival order | `renderLine()` places students FRONT to REAR by their index in `queue` |
+| 4. Serve only the earliest waiting customer | `serveFood()` only ever compares with and removes `queue[0]` |
+| 5. Show the next customer via peek | NEXT STUDENT (PEEK) panel, filled from `peekCustomer()` |
+| 6. Track waiting count and total served; block serving an empty queue | Top bar counters; `serveFood()` returns `"empty"` and changes nothing |
+| 7. Declare success after serving 10 customers and provide reset | "Shift complete!" at 10; Restart, Menu, Play again, Back to menu |
 
 ## Data structure and algorithms
 
-`queue` is an array of customer objects such as `{ number: 1 }`. Index 0 is the front. FIFO means first in, first out: if #1, #2, #3 arrive, #1 is served first. Customer numbers identify students, not current positions; they never change when someone leaves.
+`queue` is an array of customer objects. Index 0 is the FRONT; the last index is the REAR.
+
+```js
+{ number: 3, order: "siomai", patience: 10000, annoyed: false }
+```
+
+A student's number identifies them and never changes when the line moves.
 
 | State | Purpose |
 | --- | --- |
-| `queue` | Waiting customers in arrival order |
-| `nextQueueNumber` | Number assigned to the next arrival |
-| `servedCount` | Successful serves, from 0 to 10 |
-| `servedCustomers` | Served students seated at the lunch table, in serving order |
-| `lastServedCustomer` | Customer shown at the counter, initially `null` |
-| `SERVED_TARGET` | Completion target: 10 |
+| `queue` | Waiting students in arrival order |
+| `nextQueueNumber` | Number given to the next arrival |
+| `servedCount` | Students served the right food, 0 to 10 |
+| `angryCount` | Students who walked out, 0 to 3 |
+| `shiftState` | `"menu"`, `"playing"`, `"won"`, or `"lost"` |
+| `lostReason` | `"angry"` or `"line"` when the shift is lost |
+| `currentMode` | Which row of `MODES` sets the pace |
+| `counterBusy` | True while a meal is being handed over |
+| `SERVED_TARGET`, `MAX_ANGRY`, `MAX_LINE` | 10, 3, and 6 |
 
 | Function | Algorithm and result |
 | --- | --- |
-| `enqueueCustomer()` | Reject if complete; create a numbered object; append with `push`; advance numbering; return the customer. Returns `null` without mutations after completion. |
-| `dequeueCustomer()` | Reject if empty or complete; remove the front with `shift`; increment served; return the removed customer. Rejected attempts return `null` without mutations. |
-| `peekCustomer()` | Return `queue[0]`, or `null` when empty. Never removes or changes a customer. |
-| `resetGame()` | Restore empty queue, numbering 1, served 0, and no last customer. The Reset event handler clears feedback and redraws. |
-| `updateDisplay()` | Traverse the queue to render cards; derive waiting count from its length; call peek; update served/last served and completion button states. |
+| `enqueueCustomer()` | Reject if no shift is open or the line is full; create a numbered customer with a random order and full patience; append with `push`; advance numbering; return the customer. Rejection returns `null` with no changes. |
+| `dequeueCustomer()` | Return `null` if empty; otherwise remove and return the front with `shift`. |
+| `peekCustomer()` | Return `queue[0]`, or `null` when empty. Never changes anything. |
+| `customerArrives()` | If the line already holds 6, end the shift as lost; otherwise enqueue. |
+| `serveFood(foodId)` | Guards: shift closed, counter busy, empty line. Peek at the front. If the food does not match, mark them annoyed and return `"wrong"`. If it matches, dequeue, add 1 to served, and end the shift as won at 10. |
+| `drainFrontPatience()` | Lower only the front student's patience (faster if annoyed). Return true when it reaches zero. |
+| `frontCustomerWalksOut()` | Dequeue the front student without a meal; add 1 to walk-outs; end the shift as lost at 3. |
+| `resetGame()` | Stop the clock and restore every piece of state to its starting value. |
+| `renderLine()` / `updateDisplay()` | Traverse the queue from front to rear and draw each student in that order; update the counters, peek panel, and buttons. |
+| `gameTick()` | Runs 10 times a second: add an arrival when one is due, drain the front student's patience, and handle a walk-out. |
 
-The jQuery event handlers connect user actions to these functions. The Serve handler uses the returned customer to update Last served only on success. Completion is checked in both the queue operations and the interface, so disabled buttons are not the only protection.
+Every student leaves through `dequeueCustomer()`, whether happy or angry, so nobody ever leaves from the middle of the line. That is why only the front student is timed.
 
-For this array implementation, enqueue is typically amortized O(1), peek is O(1), and dequeue via `shift()` is O(n), because remaining positions move. Rendering is O(n); queue storage is O(n). A queue does not automatically make every operation O(1).
+The queue functions and game rules (parts 3 and 4 of `js/game.js`) never touch the page. The display code (part 6) only reads the data and draws it.
+
+For this array implementation, enqueue is typically amortized O(1), peek is O(1), and dequeue via `shift()` is O(n), because the remaining students move down one index. Drawing the line is O(n); queue storage is O(n), and n is at most 6.
 
 ## Technologies and files
 
-- HTML: semantic screen areas (header, main, aside) and accessible feedback status.
-- Bootstrap: local grid, cards, badges, buttons, progress bar, form switch, alert, and responsive utility classes.
-- Custom CSS: cream/navy/green theme, Front/Back lane, phone control bar, focus styles, and reduced-motion-safe animation.
-- JavaScript: queue and game state, operations, and guards.
-- jQuery: click handlers, card creation, text updates, and disabled controls.
+- HTML: one stage containing the scene, panels, food buttons, and the three screens.
+- Bootstrap (local): base reset, `kbd` styling, and flex, gap, and list utility classes.
+- Custom CSS: the pixel-style canteen scene, panels, buttons, students, and animations. Animations are switched off for people who ask their device for reduced motion.
+- JavaScript: the queue, game rules, clock, and sound.
+- jQuery (local): click and key handlers, building students and buttons, text updates, and showing screens.
 - GitHub: shared source history and team reviews.
 
 ```text
 index.html
 css/style.css
 css/vendor/                  Local Bootstrap and license
-js/game.js
+js/game.js                   Queue, rules, audio, display, clock and events
+js/sprites.js                Pixel art for the foods and the server (cosmetic)
 js/vendor/                   Local jQuery and license
+assets/                      Meme portraits, mascot, voice clips
 docs/project-report.html     Printable project document
 docs/demo-guide.md           Group demonstration and explanation guide
 docs/test-results.md         Actual automated verification record
 docs/screenshots/            Actual game screenshots
-tests/offline.cjs            Optional developer browser checks (gameplay)
-tests/audio.cjs              Optional developer browser checks (sound)
-tests/layout.cjs             Optional developer browser checks (redesigned interface)
+tests/offline.cjs            Optional developer checks (gameplay and queue)
+tests/audio.cjs              Optional developer checks (voice clips)
+tests/layout.cjs             Optional developer checks (one-screen layout)
 ```
+
+### Changing the difficulty
+
+The numbers that set the pace are constants at the top of `js/game.js`: `MODES`, `SERVED_TARGET`, `MAX_ANGRY`, `MAX_LINE`, `SERVE_TIME_MS`, `OPENING_RUSH`, and `RUSH_GAP_MS`. To add a food, add one entry to `FOODS` and one picture with the same id to `SPRITE_GRIDS` in `js/sprites.js`.
 
 ## Screenshots
 
-![Queue after serving and adding students](docs/screenshots/playing-1280.png)
+![Main menu](docs/screenshots/menu.png)
 
-![Completion after serving 10 students](docs/screenshots/success.png)
+![A full line of six students](docs/screenshots/full-line.png)
 
-The narrow-screen screenshot is in `docs/screenshots/playing-375.png`.
+![Wrong food warning](docs/screenshots/wrong-food.png)
+
+![Shift complete after serving 10 students](docs/screenshots/shift-complete.png)
+
+![Shift over after three walk-outs](docs/screenshots/shift-over.png)
+
+Screenshots whose names start with `playing-`, `lunch-`, `meme-`, `five-`, `audio-`, `redesign-`, or `success` show the earlier version of the game and are no longer referenced.
+
+## Art, characters, and sound
+
+The canteen scene, counter, students' bodies, and buttons are drawn with CSS. The four foods and the server are original pixel art stored as letter grids in `js/sprites.js`. The interface style (chunky outlined panels, bevelled buttons, an order bubble, a centred end-of-shift panel) was inspired by the look of the game *Pabili Po!* by Auguste; no files from that game are used.
+
+The five student characters use the team's user-supplied meme photos and voice clips: Reden, Baron, Busseng, Insan, and Neneng B. Characters repeat every five arrivals; queue numbers stay unique. Only the front student's clip plays. It is cut off when they are served or walk out, and the next front student's clip starts. Students joining the rear never restart it. **Sound: Off** silences voices and the beep effects. Details are in `assets/README.md`.
 
 ## Developer checks (optional; not needed to play)
 
-The automated check uses Node.js and Playwright. With Playwright available and its Chromium browser installed, run `node tests/offline.cjs`. Alternatively set `BROWSER_PATH` to an installed Chromium-based browser executable. Tests load the actual `file://` page with browser networking disabled, exercise gameplay at 1280px and 375px, and regenerate screenshots.
+The automated checks use Node.js and Playwright. With Playwright available and its Chromium browser installed, run:
 
-See `docs/test-results.md` for checked behavior and remaining human checks. Print `docs/project-report.html` using the browser's print command. Use `docs/demo-guide.md` to prepare the required group video.
+```text
+node tests/offline.cjs
+node tests/audio.cjs
+node tests/layout.cjs
+```
+
+Alternatively set `BROWSER_PATH` to an installed Chromium-based browser executable. The tests load the actual `file://` page with browser networking disabled. `offline.cjs` and `layout.cjs` also regenerate the screenshots.
+
+See `docs/test-results.md` for what was checked and what still needs a human. Print `docs/project-report.html` using the browser's print command. Use `docs/demo-guide.md` to prepare the group video.
 
 ## Submission status
 
-The working game and supporting files are prepared. The team still needs to rehearse and explain the final code, record/upload its own group demonstration, confirm the instructor's deadline and identifying details, and submit the printed document and MS Teams materials. Do not describe these activities as finished until they actually occur.
-
-
-## Cartoon assets and lunch-break humor
-
-Five named user-supplied meme portraits, and a cheerful rice-graduate mascot add personality while keeping the original navy/green school theme. Portraits cycle by student number and follow the student into Last served; they do not affect queue priority or the one-meal rule. Local files, exact built-in image-generation prompts, and usage notes are documented in `assets/README.md`.
-
-`portraitClass(customer)` selects a member profile: one of five local meme photos. `STUDENT_NAMES` and `STUDENT_MOODS` supply five cosmetic character names and captions. `updateDisplay()` renders these alongside the original student numbers and restores the empty scene after Reset. The queue functions and success target are unchanged.
-
-
-## Character sounds and Lunch Table
-
-Only the front student's local clip plays, as if talking at the counter. The first arrival starts speaking; adding students behind them does not replace or restart their clip. Serve moves the voice to the next waiting student. An empty queue, success at 10, or Reset stops playback. The **Hear the front student** switch silences playback; switching it back on plays the current front student. One audio element prevents overlap. Peek and display refreshes never restart sound. Audio errors do not block gameplay.
-
-Successfully served students move into the **Lunch Table**, in serving order, with their portrait, name, queue number, meal, and “Served · Enjoying lunch” label. They remain seated until Reset. A separate `servedCustomers` array stores this history; serving an empty queue cannot add a seat. The seated count matches the served count, including all 10 at success. Small eating animations respect reduced-motion preferences.
-
-`syncFrontAudio()` tracks the unique front customer's number to avoid replaying on rear arrivals. `dequeueCustomer()` appends the removed customer to `servedCustomers`. Reset clears both the waiting line and lunch table. These features retain FIFO processing and the one-standard-meal rule.
+The working game and supporting files are prepared. The team still needs to review and rehearse explaining the final code, play it on each member's computer, record and upload its own group demonstration, confirm the instructor's deadline and identifying details, and submit the printed document and MS Teams materials. Do not describe these activities as finished until they actually occur.
